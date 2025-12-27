@@ -14,24 +14,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4 
 
+      # 1. Start with Java 17 so the SDK tools (sdkmanager) don't crash
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android Licenses
+        run: yes | sdkmanager --licenses || true
+
+      # 2. Switch back to Java 8 for the actual Gradle build
       - name: Set up JDK 8 
         uses: actions/setup-java@v4 
         with: 
           java-version: '8' 
           distribution: 'temurin' 
           cache: gradle 
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        env:
-          # This is the magic line that fixes your current error
-          SKIP_JDK_VERSION_CHECK: true 
-
-      - name: Accept Android Licenses
-        # We add the env flag here as well just to be safe
-        run: yes | sdkmanager --licenses || true
-        env:
-          SKIP_JDK_VERSION_CHECK: true
 
       - name: Grant execute permission for gradlew 
         run: chmod +x gradlew 
