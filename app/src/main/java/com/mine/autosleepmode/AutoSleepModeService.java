@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package org.miamplayer.autoairplanemode;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -35,16 +35,10 @@ public class AutoSleepModeService extends IntentService
             }
         } else {
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.cancel(0);
-            }
+            notificationManager.cancel(0);
             Log.d(TAG, "sleep mode is going off -> scheduling new alarm!");
             AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
-            if (id == Constants.ID_DISABLE) {
-                r.setAlarmDisableSleepMode(getApplicationContext());
-            } else if (id == Constants.ID_ENABLE) {
-                r.setAlarmEnableSleepMode(getApplicationContext());
-            }
+            r.setAlarms(getApplicationContext());
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
@@ -61,9 +55,7 @@ public class AutoSleepModeService extends IntentService
         builder.setAutoCancel(true);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.notify(0, builder.build());
-        }
+        notificationManager.notify(0, builder.build());
     }
 
     private boolean toggleSleepMode(int id) {
