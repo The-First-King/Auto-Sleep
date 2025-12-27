@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class MainActivity extends Activity
@@ -59,49 +60,37 @@ public class MainActivity extends Activity
         }
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        Switch switchEnableSleep = findViewById(R.id.switchEnableSleep);
-        switchEnableSleep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        Switch switchApp = (Switch) findViewById(R.id.switchApp);
+        switchApp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sleepBroadcastReceiver.cancelAlarm(MainActivity.this, Constants.ID_ENABLE);
-                TextView editEnableSleep = findViewById(R.id.editEnableSleep);
-                editEnableSleep.setEnabled(isChecked);
-
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
                 if (isChecked) {
-                    sleepBroadcastReceiver.setAlarmEnableSleepMode(MainActivity.this);
-                } else {
-                    displayToast("This device won't turn on Sleep Mode any more");
+                    String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                    if (!message.isEmpty()) {
+                        displayToast(message);
+                    }
+                }
+
+                TextView disableSleepText = (TextView) findViewById(R.id.disableSleepText);
+                TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
+                TextView enableSleepText = (TextView) findViewById(R.id.enableSleepText);
+                TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
+                TextView nextDay = (TextView) findViewById(R.id.nextDay);
+
+                for (TextView t : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay)) {
+                    t.setEnabled(isChecked);
                 }
 
                 SharedPreferences s = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = s.edit();
-                editor.putBoolean(Constants.AUTOMATIC_ENABLE, isChecked);
+                editor.putBoolean(Constants.APP_IS_ENABLED, isChecked);
                 editor.apply();
             }
         });
 
-        Switch switchDisableSleep = findViewById(R.id.switchDisableSleep);
-        switchDisableSleep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-             @Override
-             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                 sleepBroadcastReceiver.cancelAlarm(MainActivity.this, Constants.ID_DISABLE);
-                 TextView editDisableSleep = findViewById(R.id.editDisableSleep);
-                 editDisableSleep.setEnabled(isChecked);
-
-                 if (isChecked) {
-                     sleepBroadcastReceiver.setAlarmDisableSleepMode(MainActivity.this);
-                 } else {
-                     displayToast("This device won't turn off Sleep Mode any more");
-                 }
-
-                 SharedPreferences s = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                 SharedPreferences.Editor editor = s.edit();
-                 editor.putBoolean(Constants.AUTOMATIC_DISABLE, isChecked);
-                 editor.apply();
-             }
-        });
-
-        final TextView editEnableSleep = findViewById(R.id.editEnableSleep);
+        final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
         editEnableSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,15 +99,19 @@ public class MainActivity extends Activity
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         editEnableSleep.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
+                        updateNextDay();
                         saveClocks();
-                        sleepBroadcastReceiver.cancelAlarm(MainActivity.this, Constants.ID_ENABLE);
-                        sleepBroadcastReceiver.setAlarmEnableSleepMode(MainActivity.this);
+                        sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
+                        String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                        if (!message.isEmpty()) {
+                            displayToast(message);
+                        }
                     }
                 }, 23, 0, true).show();
             }
         });
 
-        final TextView editDisableSleep = findViewById(R.id.editDisableSleep);
+        final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
         editDisableSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,9 +120,13 @@ public class MainActivity extends Activity
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         editDisableSleep.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
+                        updateNextDay();
                         saveClocks();
-                        sleepBroadcastReceiver.cancelAlarm(MainActivity.this, Constants.ID_DISABLE);
-                        sleepBroadcastReceiver.setAlarmDisableSleepMode(MainActivity.this);
+                        sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
+                        String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                        if (!message.isEmpty()) {
+                            displayToast(message);
+                        }
                     }
                 }, 8, 0, true).show();
             }
@@ -137,9 +134,9 @@ public class MainActivity extends Activity
 
         editEnableSleep.setText(settings.getString(Constants.ENABLE_SLEEP_TIME, "23:00"));
         editDisableSleep.setText(settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00"));
+        updateNextDay();
 
-        switchEnableSleep.setChecked(settings.getBoolean(Constants.AUTOMATIC_ENABLE, false));
-        switchDisableSleep.setChecked(settings.getBoolean(Constants.AUTOMATIC_DISABLE, false));
+        switchApp.setChecked(settings.getBoolean(Constants.APP_IS_ENABLED, false));
     }
 
     private void displayToast(String message) {
@@ -177,9 +174,9 @@ public class MainActivity extends Activity
     }
 
     private void updateNextDay() {
-        final TextView editEnableSleep = findViewById(R.id.editEnableSleep);
-        final TextView editDisableSleep = findViewById(R.id.editDisableSleep);
-        final TextView nextDay = findViewById(R.id.nextDay);
+        final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
+        final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
+        final TextView nextDay = (TextView) findViewById(R.id.nextDay);
         String enable = editEnableSleep.getText().toString();
         String disable = editDisableSleep.getText().toString();
         String[] e = enable.split(":");
@@ -198,8 +195,8 @@ public class MainActivity extends Activity
     private void saveClocks() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
-        final TextView editEnableSleep = findViewById(R.id.editEnableSleep);
-        final TextView editDisableSleep = findViewById(R.id.editDisableSleep);
+        final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
+        final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
         editor.putString(Constants.ENABLE_SLEEP_TIME, editEnableSleep.getText().toString());
         editor.putString(Constants.DISABLE_SLEEP_TIME, editDisableSleep.getText().toString());
         Log.d(TAG, "enable sleep mode at: " + editEnableSleep.getText().toString());
