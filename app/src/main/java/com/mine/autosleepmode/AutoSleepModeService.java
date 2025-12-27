@@ -70,11 +70,18 @@ public class AutoSleepModeService extends IntentService
         Log.d(TAG, "toggleSleepMode");
         boolean enable = id == Constants.ID_ENABLE;
         String v = enable ? "1" : "0";
+        
+        // Command 1: Update settings via shell
         String command = COMMAND_FLIGHT_MODE_1 + v;
         executeCommandWithoutWait(command);
+        
+        // Command 2: Broadcast the state change via shell
         String command2 = COMMAND_FLIGHT_MODE_2 + enable;
         executeCommandWithoutWait(command2);
-        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.SLEEP_MODE_ON, enable ? 1 : 0);
+        
+        // FIX: Use the string key instead of a non-existent Constant to avoid build failure
+        Settings.Global.putInt(getApplicationContext().getContentResolver(), "sleep_mode_on", enable ? 1 : 0);
+        
         return enable;
     }
 
@@ -88,7 +95,7 @@ public class AutoSleepModeService extends IntentService
             os.flush();
             Log.d(TAG, command);
         } catch (IOException e) {
-            Log.e(TAG, "su command has failed due to: " + e.fillInStackTrace());
+            Log.e(TAG, "su command has failed: " + e.getMessage());
         }
     }
 }
