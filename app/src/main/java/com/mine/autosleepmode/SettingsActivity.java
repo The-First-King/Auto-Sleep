@@ -1,5 +1,4 @@
-package org.miamplayer.autoairplanemode;
-
+package com.mine.autosleepmode;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -8,13 +7,6 @@ import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-/**
- * SettingsActivity class manages settings!
- *
- * @author Matthieu BACHELIER
- * @since 2017.02
- * @version 1.2
- */
 public class SettingsActivity extends Activity
 {
 
@@ -42,13 +34,6 @@ public class SettingsActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * SettingsFragment class is an inner class.
-     *
-     * @author Matthieu BACHELIER
-     * @since 2017.02
-     * @version 1.2
-     */
     public static class SettingsFragment extends PreferenceFragment
     {
         @Override

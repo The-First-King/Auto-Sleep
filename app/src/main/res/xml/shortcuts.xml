@@ -10,8 +10,8 @@
         tools:targetApi="n_mr1">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="org.miamplayer.autoairplanemode"
-            android:targetClass="org.miamplayer.autoairplanemode.SettingsActivity" />
+            android:targetPackage="com.mine.autosleepmode"
+            android:targetClass="com.mine.autosleepmode.SettingsActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

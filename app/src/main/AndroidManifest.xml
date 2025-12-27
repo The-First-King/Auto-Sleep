@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.miamplayer.autoairplanemode">
+    package="com.mine.autosleepmode">
 
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -36,7 +36,7 @@
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" />
 
-        <service android:name=".AutoAirplaneModeService" />
+        <service android:name=".AutoSleepModeService" />
         <receiver android:name=".AlarmBroadcastReceiver" />
         <receiver
             android:name=".BootReceiver"

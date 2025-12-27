@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # CHANGE THESE
-app_package="org.miamplayer.autoairplanemode"
-dir_app_name="AutoAirplaneMode"
+app_package="com.mine.autosleepmode"
+dir_app_name="AutoSleepMode"
 MAIN_ACTIVITY="MainActivity"
 
 ADB_EXE=/c/ADB2/adb

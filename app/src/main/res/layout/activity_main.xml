@@ -13,53 +13,53 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="org.miamplayer.autoairplanemode.MainActivity">
+        tools:context="com.mine.autosleepmode.MainActivity">
 
         <Switch
-            android:id="@+id/switchEnableAirplane"
+            android:id="@+id/switchEnableSleep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
             android:checked="true"
             android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
-            android:text="@string/airplane_mode_starts"
+            android:text="@string/sleep_mode_starts"
             tools:checked="true" />
 
         <TextView
-            android:id="@+id/editEnableAirplane"
+            android:id="@+id/editEnableSleep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/switchEnableAirplane"
+            android:layout_below="@+id/switchEnableSleep"
             android:text="@string/default_time_start"
             android:textAppearance="@android:style/TextAppearance.Material.Display3" />
 
         <Switch
-            android:id="@+id/switchDisableAirplane"
+            android:id="@+id/switchDisableSleep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/editEnableAirplane"
+            android:layout_below="@+id/editEnableSleep"
             android:checked="true"
             android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
-            android:text="@string/airplane_mode_ends"
+            android:text="@string/sleep_mode_ends"
             tools:checked="true" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/switchDisableAirplane"
+            android:layout_below="@+id/switchDisableSleep"
             android:layout_alignParentStart="true"
             android:weightSum="1"
             android:gravity="bottom"
             android:id="@+id/linearLayout">
 
             <TextView
-                android:id="@+id/editDisableAirplane"
+                android:id="@+id/editDisableSleep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"

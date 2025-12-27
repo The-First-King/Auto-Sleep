@@ -1,4 +1,4 @@
-package org.miamplayer.autoairplanemode;
+package com.mine.autosleepmode;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -13,20 +13,13 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- * This service can activate or desactivate Airplane Mode.
- *
- * @author Matthieu BACHELIER
- * @since 2017.02
- * @version 1.2
- */
-public class AutoAirplaneModeService extends IntentService
+public class AutoSleepModeService extends IntentService
 {
-    private static final String TAG = "AutoAirplaneModeService";
-    private static final String COMMAND_FLIGHT_MODE_1 = "settings put global airplane_mode_on ";
-    private static final String COMMAND_FLIGHT_MODE_2 = "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state ";
+    private static final String TAG = "AutoSleepModeService";
+    private static final String COMMAND_FLIGHT_MODE_1 = "settings put global sleep_mode_on ";
+    private static final String COMMAND_FLIGHT_MODE_2 = "am broadcast -a android.intent.action.SLEEP_MODE --ez state ";
 
-    public AutoAirplaneModeService() {
+    public AutoSleepModeService() {
         super("SchedulingService");
     }
 
@@ -35,40 +28,34 @@ public class AutoAirplaneModeService extends IntentService
         Log.d(TAG, "onHandleIntent");
 
         int id = intent.getIntExtra(Constants.ID, 0);
-        if (toggleAirplaneMode(id)) {
+        if (toggleSleepMode(id)) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            if (settings.getBoolean("notification_airplane_mode_started", true)) {
-                sendNotificationWhenAirplaneIsEnabled(intent.getStringExtra(Constants.END));
+            if (settings.getBoolean("notification_sleep_mode_started", true)) {
+                sendNotificationWhenSleepIsEnabled(intent.getStringExtra(Constants.END));
             }
         } else {
-            // Auto close notification
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 notificationManager.cancel(0);
             }
-            Log.d(TAG, "airplane mode is going off -> scheduling new alarm!");
+            Log.d(TAG, "sleep mode is going off -> scheduling new alarm!");
             AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
             if (id == Constants.ID_DISABLE) {
-                r.setAlarmDisableAirplaneMode(getApplicationContext());
+                r.setAlarmDisableSleepMode(getApplicationContext());
             } else if (id == Constants.ID_ENABLE) {
-                r.setAlarmEnableAirplaneMode(getApplicationContext());
+                r.setAlarmEnableSleepMode(getApplicationContext());
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    /**
-     * Send a notification when airplane mode has been triggered. It also displays when this mode will disabled itself.
-     *
-     * @param endOfAirplaneMode date to display in message
-     */
-    private void sendNotificationWhenAirplaneIsEnabled(String endOfAirplaneMode) {
-        Log.d(TAG, "sendNotificationWhenAirplaneIsEnabled");
+    private void sendNotificationWhenSleepIsEnabled(String endOfSleepMode) {
+        Log.d(TAG, "sendNotificationWhenSleepIsEnabled");
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         Notification.Builder builder = new Notification.Builder(this);
         builder.setContentTitle(getString(R.string.notification_title));
         builder.setContentText(String.format(getString(R.string.notification_content),
-                endOfAirplaneMode));
+                endOfSleepMode));
         builder.setSmallIcon(R.drawable.ic_moon);
         builder.setContentIntent(contentIntent);
         builder.setAutoCancel(true);
@@ -79,29 +66,18 @@ public class AutoAirplaneModeService extends IntentService
         }
     }
 
-    /**
-     * Change the system settings of Airplane Mode.
-     *
-     * @param id the id
-     * @return true is airplane mode should be enabled
-     */
-    private boolean toggleAirplaneMode(int id) {
-        Log.d(TAG, "toggleAirplaneMode");
+    private boolean toggleSleepMode(int id) {
+        Log.d(TAG, "toggleSleepMode");
         boolean enable = id == Constants.ID_ENABLE;
         String v = enable ? "1" : "0";
         String command = COMMAND_FLIGHT_MODE_1 + v;
         executeCommandWithoutWait(command);
         String command2 = COMMAND_FLIGHT_MODE_2 + enable;
         executeCommandWithoutWait(command2);
-        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, enable ? 1 : 0);
+        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.SLEEP_MODE_ON, enable ? 1 : 0);
         return enable;
     }
 
-    /**
-     * Execute a command with root user.
-     *
-     * @param command the command to execute
-     */
     private void executeCommandWithoutWait(String command) {
         Log.d(TAG, "executeCommandWithoutWait");
         try {
