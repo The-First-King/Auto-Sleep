@@ -74,7 +74,7 @@ public class AutoSleepModeService extends IntentService
         executeCommandWithoutWait(command);
         String command2 = COMMAND_FLIGHT_MODE_2 + enable;
         executeCommandWithoutWait(command2);
-        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.SLEEP_MODE_ON, enable ? 1 : 0);
+        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, enable ? 1 : 0);
         return enable;
     }
 
