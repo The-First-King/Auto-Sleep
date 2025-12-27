@@ -7,7 +7,6 @@
         android:shortcutShortLabel="@string/shortcut_short_label"
         android:shortcutLongLabel="@string/shortcut_long_label"
         android:shortcutDisabledMessage="@string/shortcut_disabled"
-        tools:targetApi="n_mr1">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.mine.autosleepmode"
