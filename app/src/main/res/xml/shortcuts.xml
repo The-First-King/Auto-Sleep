@@ -6,7 +6,7 @@
         android:icon="@drawable/ic_action_settings"
         android:shortcutShortLabel="@string/shortcut_short_label"
         android:shortcutLongLabel="@string/shortcut_long_label"
-        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutDisabledMessage="@string/shortcut_disabled">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.mine.autosleepmode"
