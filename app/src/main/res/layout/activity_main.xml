@@ -16,66 +16,74 @@
         tools:context="com.mine.autosleepmode.MainActivity">
 
         <Switch
-            android:id="@+id/switchEnableSleep"
+            android:text="@string/toggle_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:id="@+id/switchApp"
+            android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:checked="true"
-            android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
-            android:text="@string/sleep_mode_starts"
-            tools:checked="true" />
+            android:layout_alignParentEnd="true" />
 
         <TextView
-            android:id="@+id/editEnableSleep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/sleep_mode_starts"
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/switchEnableSleep"
+            android:id="@+id/enableSleepText"
+            android:layout_below="@+id/switchApp"
+            android:enabled="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/default_time_start"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/editEnableSleep"
+            android:layout_below="@+id/enableSleepText"
+            android:enabled="false"
             android:textAppearance="@android:style/TextAppearance.Material.Display3" />
 
-        <Switch
-            android:id="@+id/switchDisableSleep"
+        <TextView
+            android:text="@string/sleep_mode_ends"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
+            android:id="@+id/disableSleepText"
+            android:enabled="false"
             android:layout_below="@+id/editEnableSleep"
-            android:checked="true"
-            android:switchTextAppearance="@android:style/TextAppearance.Material.Small"
-            android:text="@string/sleep_mode_ends"
-            tools:checked="true" />
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/switchDisableSleep"
+            android:layout_below="@+id/disableSleepText"
             android:layout_alignParentStart="true"
             android:weightSum="1"
-            android:gravity="bottom"
-            android:id="@+id/linearLayout">
+            android:gravity="bottom">
 
             <TextView
-                android:id="@+id/editDisableSleep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
                 android:text="@string/default_time_end"
+                android:layout_gravity="bottom|start"
+                android:id="@+id/editDisableSleep"
+                android:enabled="false"
                 android:textAppearance="@android:style/TextAppearance.Material.Display3" />
 
             <TextView
-                android:id="@+id/nextDay"
+                android:text="@string/next_day"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                android:layout_marginBottom="4dp"
-                android:layout_marginStart="8dp"
+                android:id="@+id/nextDay"
+                android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                android:enabled="false"
                 android:layout_weight="1"
-                android:text="@string/next_day"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp" />
 
         </LinearLayout>
 
