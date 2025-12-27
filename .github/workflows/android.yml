@@ -23,9 +23,15 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        env:
+          # This is the magic line that fixes your current error
+          SKIP_JDK_VERSION_CHECK: true 
 
       - name: Accept Android Licenses
+        # We add the env flag here as well just to be safe
         run: yes | sdkmanager --licenses || true
+        env:
+          SKIP_JDK_VERSION_CHECK: true
 
       - name: Grant execute permission for gradlew 
         run: chmod +x gradlew 
