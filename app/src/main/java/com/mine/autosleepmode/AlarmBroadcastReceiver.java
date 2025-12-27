@@ -97,11 +97,11 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
 
         String message;
         if (now.get(Calendar.DATE) == calendarStart.get(Calendar.DATE)) {
-            message = context.getString(R.string.toast_next_airplane_mode_today);
+            message = context.getString(R.string.toast_next_sleep_mode_today);
         } else if (calendarStart.get(Calendar.DATE) - now.get(Calendar.DATE) == 1) {
-            message = context.getString(R.string.toast_next_airplane_mode_tomorrow);
+            message = context.getString(R.string.toast_next_sleep_mode_tomorrow);
         } else {
-            message = String.format(context.getString(R.string.toast_next_airplane_mode_later),
+            message = String.format(context.getString(R.string.toast_next_sleep_mode_later),
                     SDF_1.format(calendarStart.getTime()),
                     SDF_2.format(calendarStart.getTime()));
         }
@@ -171,4 +171,3 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         }
     }
 }
-
