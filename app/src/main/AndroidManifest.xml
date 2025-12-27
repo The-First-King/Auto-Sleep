@@ -2,52 +2,47 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mine.autosleepmode">
 
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher"
-        android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        
+
+        <!-- Main page -->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
+        <!-- Settings page -->
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.mine.autosleepmode.MainActivity" />
-        </activity>
+            android:parentActivityName=".MainActivity" />
 
-        <service
-            android:name=".AutoSleepModeService"
-            android:enabled="true"
-            android:exported="true" />
-
-        <receiver
-            android:name=".AlarmBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true" />
-            
+        <service android:name=".AutoSleepModeService" />
+        <receiver android:name=".AlarmBroadcastReceiver" />
         <receiver
             android:name=".BootReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>
