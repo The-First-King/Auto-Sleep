@@ -13,5 +13,4 @@ final class Constants
 
     static final String ID = "id";
     static final String END = "end";
-
 }
