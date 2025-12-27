@@ -33,7 +33,7 @@
     <string name="menu_about">About</string>
 
     <!-- About Dialog -->
-    <string name="about_description_main">This App can be used to schedule when this phone should switches automatically to Sleep mode.</string>
+    <string name="about_description_main">This App can be used to schedule when this phone should switch automatically to Sleep mode.</string>
     <string name="about_description_sleep_well">Sleep well!</string>
     <string name="about_ok_button">Great!</string>
 
@@ -44,7 +44,7 @@
 
     <!-- Settings Page UI -->
     <string name="settings_notification_label">Notification</string>
-    <string name="settings_notification_switch">Display when entering in sleep mode</string>
+    <string name="settings_notification_switch">Display when entering sleep mode</string>
 
     <!-- Notification -->
     <string name="notification_title">Sleep mode enabled automatically</string>
