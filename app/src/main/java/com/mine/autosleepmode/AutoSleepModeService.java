@@ -1,4 +1,4 @@
-package org.miamplayer.autoairplanemode;
+package com.mine.autosleepmode;
 
 import android.app.IntentService;
 import android.app.Notification;
