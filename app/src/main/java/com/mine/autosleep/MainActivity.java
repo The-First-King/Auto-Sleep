@@ -69,12 +69,10 @@ public class MainActivity extends Activity
         final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
         final TextView nextDay = (TextView) findViewById(R.id.nextDay);
 
-        // Day Selector UI
         final RadioGroup radioGroupStartDay = (RadioGroup) findViewById(R.id.radioGroupStartDay);
         final RadioButton radioToday = (RadioButton) findViewById(R.id.radioToday);
         final RadioButton radioTomorrow = (RadioButton) findViewById(R.id.radioTomorrow);
 
-        // Load saved choice
         boolean startNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
         if (startNextDay) {
             radioTomorrow.setChecked(true);
@@ -94,12 +92,10 @@ public class MainActivity extends Activity
                     }
                 }
 
-                // UPDATED: Added radioGroupStartDay to this list to dim everything together
                 for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay, radioGroupStartDay)) {
                     v.setEnabled(isChecked);
                 }
                 
-                // RadioButtons inside the group also need to be explicitly toggled
                 radioToday.setEnabled(isChecked);
                 radioTomorrow.setEnabled(isChecked);
 
@@ -109,7 +105,6 @@ public class MainActivity extends Activity
             }
         });
 
-        // Listener for Day Selection changes
         radioGroupStartDay.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
