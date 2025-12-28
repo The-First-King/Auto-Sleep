@@ -59,10 +59,7 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         Calendar now = Calendar.getInstance();
         Calendar calendarStart = Calendar.getInstance();
         Calendar calendarEnd = Calendar.getInstance();
-        now.setTimeInMillis(System.currentTimeMillis());
-        calendarStart.setTimeInMillis(now.getTimeInMillis());
-        calendarEnd.setTimeInMillis(now.getTimeInMillis());
-
+        
         calendarStart.set(Calendar.HOUR_OF_DAY, Integer.valueOf(enable[0]));
         calendarStart.set(Calendar.MINUTE, Integer.valueOf(enable[1]));
         calendarStart.set(Calendar.SECOND, 0);
@@ -91,6 +88,7 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
         disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarStart.getTimeInMillis(), enableSleepPendingIntent);
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarEnd.getTimeInMillis(), disableSleepPendingIntent);
         setAlarmAfterReboot(context, true);
@@ -98,12 +96,15 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         String message;
         if (now.get(Calendar.DATE) == calendarStart.get(Calendar.DATE)) {
             message = context.getString(R.string.toast_next_sleep_today);
-        } else if (calendarStart.get(Calendar.DATE) - now.get(Calendar.DATE) == 1) {
-            message = context.getString(R.string.toast_next_sleep_tomorrow);
         } else {
-            message = String.format(context.getString(R.string.toast_next_sleep_later),
-                    SDF_1.format(calendarStart.getTime()),
-                    SDF_2.format(calendarStart.getTime()));
+            long diff = (calendarStart.getTimeInMillis() - now.getTimeInMillis()) / (24 * 60 * 60 * 1000);
+            if (diff < 1) { // Same logical day but technically tomorrow morning
+                message = context.getString(R.string.toast_next_sleep_tomorrow);
+            } else {
+                message = String.format(context.getString(R.string.toast_next_sleep_later),
+                        SDF_1.format(calendarStart.getTime()),
+                        SDF_2.format(calendarStart.getTime()));
+            }
         }
         return message;
     }
@@ -111,22 +112,33 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
     private boolean getNextScheduledDay(Context context, Calendar now, Calendar start, Calendar end) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean checked = false;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 1; i <= 7; i++) {
             checked = checked || settings.getBoolean("switch_" + String.valueOf(i), true);
         }
         if (!checked) {
             return false;
         }
 
+        // NEW: Check the Radio Button selection from MainActivity
+        boolean startOnNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
+
         int WEEK = 7;
         int[] days = new int[WEEK];
         for (int i = 0; i < WEEK; i++) {
             int dow = now.get(Calendar.DAY_OF_WEEK);
-            if (now.before(start) || (now.after(start) && now.before(end))) {
-                days[i] = (dow + i) % 7;
-            } else {
+            
+            // Logic change: If "Next Day" is selected, we force the start day to be tomorrow (dow + 1)
+            if (startOnNextDay) {
                 days[i] = (dow + 1 + i) % 7;
+            } else {
+                // If "Today" is selected, check if time has passed
+                if (now.before(start)) {
+                    days[i] = (dow + i) % 7;
+                } else {
+                    days[i] = (dow + 1 + i) % 7;
+                }
             }
+            
             if (days[i] == 0) {
                 days[i] = WEEK;
             }
@@ -141,22 +153,37 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         }
 
         int s = start.get(Calendar.DAY_OF_WEEK);
-        int diff = Math.abs(dow - s);
+        // Calculate the difference in days correctly
+        int diff = (dow - s + 7) % 7;
+        
+        // If "Tomorrow" was selected and diff is 0, it means the next available 
+        // day in settings is today, but we must move it to next week.
+        if (startOnNextDay && diff == 0) {
+            diff = 7;
+        }
+
         start.add(Calendar.DATE, diff);
         end.add(Calendar.DATE, diff);
 
         SimpleDateFormat sdf = new SimpleDateFormat("E, dd/MM HH:mm", Locale.getDefault());
-        Log.d(TAG, sdf.format(start.getTime()));
-        Log.d(TAG, sdf.format(end.getTime()));
+        Log.d(TAG, "Scheduled Start: " + sdf.format(start.getTime()));
+        Log.d(TAG, "Scheduled End: " + sdf.format(end.getTime()));
         return true;
     }
 
     public void cancelAlarms(Context context)
     {
         Log.d(TAG, "cancelAlarms");
+        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
+        Intent intentDisable = new Intent(context, AlarmBroadcastReceiver.class);
+        
+        PendingIntent piEnable = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
+        PendingIntent piDisable = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
+        
         if (alarmManager != null) {
-            alarmManager.cancel(enableSleepPendingIntent);
-            alarmManager.cancel(disableSleepPendingIntent);
+            alarmManager.cancel(piEnable);
+            alarmManager.cancel(piDisable);
         }
         setAlarmAfterReboot(context, false);
     }
