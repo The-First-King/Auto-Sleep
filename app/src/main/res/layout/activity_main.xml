@@ -45,66 +45,65 @@
             android:enabled="false"
             android:textAppearance="@android:style/TextAppearance.Material.Display3" />
 
-        <RadioGroup
-            android:id="@+id/radioGroupStartDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/editEnableSleep"
-            android:orientation="horizontal"
-            android:enabled="false">
-            <RadioButton
-                android:id="@+id/radioToday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Today"
-                android:checked="true" />
-            <RadioButton
-                android:id="@+id/radioTomorrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tomorrow" />
-        </RadioGroup>
-
         <TextView
             android:text="@string/sleep_ends"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/disableSleepText"
             android:enabled="false"
-            android:layout_below="@+id/radioGroupStartDay"
+            android:layout_below="@+id/editEnableSleep"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp" />
 
         <LinearLayout
+            android:id="@+id/layoutSleepEnds"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/disableSleepText"
             android:layout_alignParentStart="true"
-            android:weightSum="1"
             android:gravity="bottom">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_time_end"
-                android:layout_gravity="bottom|start"
                 android:id="@+id/editDisableSleep"
                 android:enabled="false"
                 android:textAppearance="@android:style/TextAppearance.Material.Display3" />
 
             <TextView
                 android:text="@string/next_day"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/nextDay"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:enabled="false"
-                android:layout_weight="1"
-                android:layout_gravity="bottom|start"
                 android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp" />
-
+                android:layout_marginBottom="8dp" />
         </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/radioGroupStartDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layoutSleepEnds"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:enabled="false">
+            <RadioButton
+                android:id="@+id/radioToday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_today"
+                android:checked="true" />
+            <RadioButton
+                android:id="@+id/radioTomorrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_tomorrow" />
+        </RadioGroup>
+
     </RelativeLayout>
 </ScrollView>
