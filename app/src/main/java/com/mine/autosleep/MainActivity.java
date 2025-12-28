@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -58,9 +60,28 @@ public class MainActivity extends Activity
                     }
                 }).show();
         }
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        Switch switchApp = (Switch) findViewById(R.id.switchApp);
+        final Switch switchApp = (Switch) findViewById(R.id.switchApp);
+        final TextView disableSleepText = (TextView) findViewById(R.id.disableSleepText);
+        final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
+        final TextView enableSleepText = (TextView) findViewById(R.id.enableSleepText);
+        final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
+        final TextView nextDay = (TextView) findViewById(R.id.nextDay);
+
+        // Day Selector UI
+        final RadioGroup radioGroupStartDay = (RadioGroup) findViewById(R.id.radioGroupStartDay);
+        final RadioButton radioToday = (RadioButton) findViewById(R.id.radioToday);
+        final RadioButton radioTomorrow = (RadioButton) findViewById(R.id.radioTomorrow);
+
+        // Load saved choice
+        boolean startNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
+        if (startNextDay) {
+            radioTomorrow.setChecked(true);
+        } else {
+            radioToday.setChecked(true);
+        }
+
         switchApp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
@@ -73,59 +94,68 @@ public class MainActivity extends Activity
                     }
                 }
 
-                TextView disableSleepText = (TextView) findViewById(R.id.disableSleepText);
-                TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
-                TextView enableSleepText = (TextView) findViewById(R.id.enableSleepText);
-                TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
-                TextView nextDay = (TextView) findViewById(R.id.nextDay);
-
-                for (TextView t : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay)) {
-                    t.setEnabled(isChecked);
+                // Enable/Disable all views including new radio buttons
+                for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay)) {
+                    v.setEnabled(isChecked);
                 }
+                radioGroupStartDay.setEnabled(isChecked);
+                radioToday.setEnabled(isChecked);
+                radioTomorrow.setEnabled(isChecked);
 
-                SharedPreferences s = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor editor = s.edit();
+                SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean(Constants.APP_IS_ENABLED, isChecked);
                 editor.apply();
             }
         });
 
-        final TextView editEnableSleep = (TextView) findViewById(R.id.editEnableSleep);
+        // Listener for Day Selection changes
+        radioGroupStartDay.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean(Constants.START_ON_NEXT_DAY, checkedId == R.id.radioTomorrow);
+                editor.apply();
+
+                if (switchApp.isChecked()) {
+                    sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
+                    String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                    if (!message.isEmpty()) displayToast(message);
+                }
+            }
+        });
+
         editEnableSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         editEnableSleep.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
                         updateNextDay();
                         saveClocks();
-                        sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
-                        String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
-                        if (!message.isEmpty()) {
-                            displayToast(message);
+                        if (switchApp.isChecked()) {
+                            sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
+                            String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                            if (!message.isEmpty()) displayToast(message);
                         }
                     }
                 }, 23, 0, true).show();
             }
         });
 
-        final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
         editDisableSleep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         editDisableSleep.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
                         updateNextDay();
                         saveClocks();
-                        sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
-                        String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
-                        if (!message.isEmpty()) {
-                            displayToast(message);
+                        if (switchApp.isChecked()) {
+                            sleepBroadcastReceiver.cancelAlarms(MainActivity.this);
+                            String message = sleepBroadcastReceiver.setAlarms(MainActivity.this);
+                            if (!message.isEmpty()) displayToast(message);
                         }
                     }
                 }, 8, 0, true).show();
@@ -141,7 +171,6 @@ public class MainActivity extends Activity
 
     private void displayToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-
     }
 
     @Override
