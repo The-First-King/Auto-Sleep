@@ -7,11 +7,4 @@
         android:visible="true"
         android:enabled="true"
         app:showAsAction="withText" />
-    <item android:title="@string/menu_about"
-        android:orderInCategory="101"
-        android:id="@+id/menu_about"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:visible="true"
-        android:enabled="true"
-        app:showAsAction="withText" />
 </menu>
