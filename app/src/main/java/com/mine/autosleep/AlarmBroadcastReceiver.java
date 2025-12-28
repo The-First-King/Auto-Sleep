@@ -87,8 +87,10 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
         intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
 
-        enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
-        disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
+        // enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
+        // disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
+        enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarStart.getTimeInMillis(), enableSleepPendingIntent);
