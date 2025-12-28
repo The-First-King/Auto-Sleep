@@ -1,18 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-	namespace 'com.mine.autosleepmode'
+    namespace 'com.mine.autosleepmode'
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
-	
+    
     defaultConfig {
-        applicationId "com.mine.autosleepmode"
         minSdkVersion 23
         targetSdkVersion 27
         versionCode 1
         versionName "1.1"
     }
-	
+    
     buildTypes {
         debug {
             minifyEnabled false
@@ -21,6 +20,12 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "com.mine.autosleepmode-${variant.buildType.name}.apk"
         }
     }
 }
