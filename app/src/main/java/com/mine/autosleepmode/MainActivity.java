@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package com.mine.autosleep;
 
 import android.app.Activity;
 import android.app.AlertDialog;
