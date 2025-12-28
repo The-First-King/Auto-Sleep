@@ -11,24 +11,23 @@ permissions:
 
 jobs:
   build:
-    runs-runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 1. TEMPORARILY SET UP JDK 17 (Required to run the modern sdkmanager)
+      # 1. SET UP JDK 17 (To run the modern sdkmanager)
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 2. INSTALL LEGACY TOOLS (Now works because we are using Java 17)
+      # 2. INSTALL LEGACY TOOLS
       - name: Install Android Build Tools 27.0.3
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;27.0.3"
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-27"
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;27.0.3" "platforms;android-27"
 
-      # 3. SWITCH TO JDK 8 (Required to build your Android 6.0/SDK 27 project)
+      # 3. SWITCH TO JDK 8 (For the legacy build)
       - name: set up JDK 8
         uses: actions/setup-java@v4
         with:
@@ -55,7 +54,6 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
-          # This action will now find zipalign in the 27.0.3 folder we installed
           BUILD_TOOLS_VERSION: "27.0.3"
 
       # 5. RENAME THE SIGNED APK
@@ -63,7 +61,7 @@ jobs:
         id: rename_apk
         run: |
           raw_tag=${GITHUB_REF#refs/tags/}
-          if [ "$raw_tag" = "workflow_dispatch" ] || [ "$raw_tag" = "master" ]; then
+          if [ "$raw_tag" = "workflow_dispatch" ] || [ "$raw_tag" = "master" ] || [[ "$raw_tag" == refs/heads/* ]]; then
             clean_tag="manual"
           else
             clean_tag="${raw_tag//./}"
