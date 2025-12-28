@@ -87,8 +87,6 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
         intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
 
-        // enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
-        // disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
         enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -123,7 +121,6 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
             return false;
         }
 
-        // NEW: Check the Radio Button selection from MainActivity
         boolean startOnNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
 
         int WEEK = 7;
@@ -157,11 +154,8 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         }
 
         int s = start.get(Calendar.DAY_OF_WEEK);
-        // Calculate the difference in days correctly
         int diff = (dow - s + 7) % 7;
         
-        // If "Tomorrow" was selected and diff is 0, it means the next available 
-        // day in settings is today, but we must move it to next week.
         if (startOnNextDay && diff == 0) {
             diff = 7;
         }
