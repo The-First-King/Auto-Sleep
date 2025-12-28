@@ -21,7 +21,8 @@
     <string name="trigger_on">Trigger on</string>
     <string name="default_time_start" translatable="false">23:00</string>
     <string name="default_time_end" translatable="false">08:00</string>
-    <string name="next_day">(next day)</string>
+    <string name="radio_today">Today</string>
+    <string name="radio_tomorrow">Tomorrow</string>
 
     <!-- Toast displayed when setting time -->
     <string name="toast_next_sleep_today">Next sleep mode is scheduled today</string>
