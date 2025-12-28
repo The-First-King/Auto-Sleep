@@ -2,12 +2,12 @@
 
     <!-- Root Dialog -->
     <string name="root_dialog_title">Root access required</string>
-    <string name="root_dialog_desc_main">You need to have your phone rooted in order to use Auto Sleep Mode.</string>
+    <string name="root_dialog_desc_main">You need to have your phone rooted in order to use Auto Sleep.</string>
     <string name="root_dialog_desc_exit">This App will now close.</string>
     <string name="root_dialog_ok_button">I got it</string>
 
     <!-- Main Page UI -->
-    <string name="app_name">Auto Sleep Mode</string>
+    <string name="app_name">Auto Sleep</string>
     <string name="toggle_app">Toggle App</string>
     <string name="sleep_mode_starts">Sleep mode starts at</string>
     <string name="sleep_mode_ends">Sleep mode ends at</string>
