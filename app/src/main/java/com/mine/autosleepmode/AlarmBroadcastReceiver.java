@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package com.mine.autosleep;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -36,7 +36,7 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
             return;
         }
 
-        Intent service = new Intent(context, AutoSleepModeService.class);
+        Intent service = new Intent(context, AutoSleepService.class);
         int id = intent.getIntExtra(Constants.ID, 0);
         if (id == Constants.ID_ENABLE) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -50,11 +50,11 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
     {
         Log.d(TAG, "setAlarms");
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String enableAutoSleepMode = settings.getString(Constants.ENABLE_SLEEP_TIME, "23:00");
-        String disableAutoSleepMode = settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00");
+        String enableAutoSleep = settings.getString(Constants.ENABLE_SLEEP_TIME, "23:00");
+        String disableAutoSleep = settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00");
 
-        String[] enable = enableAutoSleepMode.split(":");
-        String[] disable = disableAutoSleepMode.split(":");
+        String[] enable = enableAutoSleep.split(":");
+        String[] disable = disableAutoSleep.split(":");
 
         Calendar now = Calendar.getInstance();
         Calendar calendarStart = Calendar.getInstance();
