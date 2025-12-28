@@ -199,8 +199,8 @@ public class MainActivity extends Activity
         final TextView editDisableSleep = (TextView) findViewById(R.id.editDisableSleep);
         editor.putString(Constants.ENABLE_SLEEP_TIME, editEnableSleep.getText().toString());
         editor.putString(Constants.DISABLE_SLEEP_TIME, editDisableSleep.getText().toString());
-        Log.d(TAG, "enable sleep mode at: " + editEnableSleep.getText().toString());
-        Log.d(TAG, "disable sleep mode at: " + editDisableSleep.getText().toString());
+        Log.d(TAG, "enable sleep at: " + editEnableSleep.getText().toString());
+        Log.d(TAG, "disable sleep at: " + editDisableSleep.getText().toString());
         editor.apply();
     }
 }
