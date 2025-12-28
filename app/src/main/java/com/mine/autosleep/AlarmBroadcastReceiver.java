@@ -80,7 +80,9 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         }
 
         Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
+        intentEnable.setClass(context, AlarmBroadcastReceiver.class);
         Intent intentDisable = new Intent(context, AlarmBroadcastReceiver.class);
+        intentDisable.setClass(context, AlarmBroadcastReceiver.class);
 
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
         intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
