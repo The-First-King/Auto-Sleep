@@ -34,7 +34,7 @@
     <PreferenceCategory android:title="@string/settings_notification_label">
         <SwitchPreference
             android:defaultValue="true"
-            android:key="notification_sleep_mode_started"
+            android:key="notification_sleep_started"
             android:title="@string/settings_notification_switch"
             android:inputType="textMultiLine"
             android:minLines="5" />
