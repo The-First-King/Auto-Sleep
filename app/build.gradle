@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
     
     defaultConfig {
-        applicationId "com.mine.autosleepmode"
+        applicationId "com.mine.autosleep"
         minSdkVersion 23
         targetSdkVersion 27
         versionCode 1
@@ -25,7 +25,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "com.mine.autosleepmode-${variant.buildType.name}.apk"
+            outputFileName = "com.mine.autosleep-${variant.buildType.name}.apk"
         }
     }
 }
