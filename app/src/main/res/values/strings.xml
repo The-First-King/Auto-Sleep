@@ -9,8 +9,8 @@
     <!-- Main Page UI -->
     <string name="app_name">Auto Sleep</string>
     <string name="toggle_app">Toggle App</string>
-    <string name="sleep_mode_starts">Sleep mode starts at</string>
-    <string name="sleep_mode_ends">Sleep mode ends at</string>
+    <string name="sleep_starts">Sleep mode starts at</string>
+    <string name="sleep_ends">Sleep mode ends at</string>
     <string name="monday">Monday</string>
     <string name="tuesday">Tuesday</string>
     <string name="wednesday">Wednesday</string>
@@ -24,9 +24,9 @@
     <string name="next_day">(next day)</string>
 
     <!-- Toast displayed when setting time -->
-    <string name="toast_next_sleep_mode_today">Next sleep mode is scheduled today</string>
-    <string name="toast_next_sleep_mode_tomorrow">Next sleep mode is scheduled tomorrow</string>
-    <string name="toast_next_sleep_mode_later">Sleep mode is scheduled to %1$s at %2$s</string>
+    <string name="toast_next_sleep_today">Next sleep mode is scheduled today</string>
+    <string name="toast_next_sleep_tomorrow">Next sleep mode is scheduled tomorrow</string>
+    <string name="toast_next_sleep_later">Sleep mode is scheduled to %1$s at %2$s</string>
 
     <!-- Toolbar -->
     <string name="menu_settings">Settings</string>
