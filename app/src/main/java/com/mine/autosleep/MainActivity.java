@@ -94,11 +94,12 @@ public class MainActivity extends Activity
                     }
                 }
 
-                // Enable/Disable all views including new radio buttons
-                for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay)) {
+                // UPDATED: Added radioGroupStartDay to this list to dim everything together
+                for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, nextDay, radioGroupStartDay)) {
                     v.setEnabled(isChecked);
                 }
-                radioGroupStartDay.setEnabled(isChecked);
+                
+                // RadioButtons inside the group also need to be explicitly toggled
                 radioToday.setEnabled(isChecked);
                 radioTomorrow.setEnabled(isChecked);
 
