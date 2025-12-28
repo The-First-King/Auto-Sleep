@@ -21,8 +21,8 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
     private static final String TAG = "AlarmBroadcastReceiver";
 
     private AlarmManager alarmManager;
-    private PendingIntent enableSleepModePendingIntent;
-    private PendingIntent disableSleepModePendingIntent;
+    private PendingIntent enableSleepPendingIntent;
+    private PendingIntent disableSleepPendingIntent;
 
     private static final SimpleDateFormat SDF_1 = new SimpleDateFormat("dd/MM", Locale.getDefault());
     private static final SimpleDateFormat SDF_2 = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -78,7 +78,7 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         }
 
         if (!getNextScheduledDay(context, now, calendarStart, calendarEnd)) {
-            Toast.makeText(context, "No day was checked in Settings, so Automatic mode cannot be scheduled", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "No day was checked in Settings, so Auto Sleep mode cannot be scheduled", Toast.LENGTH_LONG).show();
             return "";
         }
 
@@ -88,20 +88,20 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
         intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
 
-        enableSleepModePendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
-        disableSleepModePendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
+        enableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, 0);
+        disableSleepPendingIntent = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, 0);
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarStart.getTimeInMillis(), enableSleepModePendingIntent);
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarEnd.getTimeInMillis(), disableSleepModePendingIntent);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarStart.getTimeInMillis(), enableSleepPendingIntent);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarEnd.getTimeInMillis(), disableSleepPendingIntent);
         setAlarmAfterReboot(context, true);
 
         String message;
         if (now.get(Calendar.DATE) == calendarStart.get(Calendar.DATE)) {
-            message = context.getString(R.string.toast_next_sleep_mode_today);
+            message = context.getString(R.string.toast_next_sleep_today);
         } else if (calendarStart.get(Calendar.DATE) - now.get(Calendar.DATE) == 1) {
-            message = context.getString(R.string.toast_next_sleep_mode_tomorrow);
+            message = context.getString(R.string.toast_next_sleep_tomorrow);
         } else {
-            message = String.format(context.getString(R.string.toast_next_sleep_mode_later),
+            message = String.format(context.getString(R.string.toast_next_sleep_later),
                     SDF_1.format(calendarStart.getTime()),
                     SDF_2.format(calendarStart.getTime()));
         }
@@ -155,8 +155,8 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver
     {
         Log.d(TAG, "cancelAlarms");
         if (alarmManager != null) {
-            alarmManager.cancel(enableSleepModePendingIntent);
-            alarmManager.cancel(disableSleepModePendingIntent);
+            alarmManager.cancel(enableSleepPendingIntent);
+            alarmManager.cancel(disableSleepPendingIntent);
         }
         setAlarmAfterReboot(context, false);
     }
