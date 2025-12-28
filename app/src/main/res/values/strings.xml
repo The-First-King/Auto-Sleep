@@ -34,11 +34,6 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_about">About</string>
 
-    <!-- About Dialog -->
-    <string name="about_description_main">This App can be used to schedule when this phone should switch automatically to Sleep mode.</string>
-    <string name="about_description_sleep_well">Sleep well!</string>
-    <string name="about_ok_button">Great!</string>
-
     <!-- App Shortcut -->
     <string name="shortcut_short_label">Settings</string>
     <string name="shortcut_long_label">Open settings</string>
