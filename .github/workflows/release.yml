@@ -11,24 +11,30 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      # 1. TEMPORARILY SET UP JDK 17 (Required to run the modern sdkmanager)
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 2. INSTALL LEGACY TOOLS (Now works because we are using Java 17)
+      - name: Install Android Build Tools 27.0.3
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;27.0.3"
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-27"
+
+      # 3. SWITCH TO JDK 8 (Required to build your Android 6.0/SDK 27 project)
       - name: set up JDK 8
         uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: gradle
-          
-      - name: Install Android Build Tools 27.0.3
-        run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;27.0.3"
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-27"
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -38,6 +44,7 @@ jobs:
         env:
           ANDROID_NDK_HOME: ""
 
+      # 4. SIGN THE APK
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
         id: sign_app
@@ -48,14 +55,14 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
-          # Match this to your build.gradle version
+          # This action will now find zipalign in the 27.0.3 folder we installed
           BUILD_TOOLS_VERSION: "27.0.3"
 
+      # 5. RENAME THE SIGNED APK
       - name: Rename for Release
         id: rename_apk
         run: |
           raw_tag=${GITHUB_REF#refs/tags/}
-          # If triggered via workflow_dispatch (no tag), use 'manual'
           if [ "$raw_tag" = "workflow_dispatch" ] || [ "$raw_tag" = "master" ]; then
             clean_tag="manual"
           else
@@ -68,6 +75,7 @@ jobs:
           mv "$signed_file" "app/build/outputs/apk/release/$new_name"
           echo "new_path=app/build/outputs/apk/release/$new_name" >> $GITHUB_OUTPUT
 
+      # 6. PUBLISH TO GITHUB RELEASES
       - name: Create GitHub Release and Upload
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
