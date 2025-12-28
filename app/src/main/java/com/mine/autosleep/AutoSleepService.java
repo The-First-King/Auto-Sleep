@@ -28,9 +28,9 @@ public class AutoSleepService extends IntentService
         Log.d(TAG, "onHandleIntent");
 
         int id = intent.getIntExtra(Constants.ID, 0);
-        if (toggleSleepMode(id)) {
+        if (toggleSleep(id)) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            if (settings.getBoolean("notification_sleep_mode_started", true)) {
+            if (settings.getBoolean("notification_sleep_started", true)) {
                 sendNotificationWhenSleepIsEnabled(intent.getStringExtra(Constants.END));
             }
         } else {
@@ -43,13 +43,13 @@ public class AutoSleepService extends IntentService
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendNotificationWhenSleepIsEnabled(String endOfSleepMode) {
+    private void sendNotificationWhenSleepIsEnabled(String endOfSleep) {
         Log.d(TAG, "sendNotificationWhenSleepIsEnabled");
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         Notification.Builder builder = new Notification.Builder(this);
         builder.setContentTitle(getString(R.string.notification_title));
         builder.setContentText(String.format(getString(R.string.notification_content),
-                endOfSleepMode));
+                endOfSleep));
         builder.setSmallIcon(R.drawable.ic_moon);
         builder.setContentIntent(contentIntent);
         builder.setAutoCancel(true);
@@ -58,8 +58,8 @@ public class AutoSleepService extends IntentService
         notificationManager.notify(0, builder.build());
     }
 
-    private boolean toggleSleepMode(int id) {
-        Log.d(TAG, "toggleSleepMode");
+    private boolean toggleSleep(int id) {
+        Log.d(TAG, "toggleSleep");
         boolean enable = id == Constants.ID_ENABLE;
         String v = enable ? "1" : "0";
         String command = COMMAND_FLIGHT_MODE_1 + v;
