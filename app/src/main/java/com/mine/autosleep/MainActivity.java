@@ -177,18 +177,13 @@ public class MainActivity extends Activity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // We removed the 'About' case entirely because the strings were deleted
         switch (item.getItemId()) {
-            case R.id.menu_about:
-                new AlertDialog.Builder(MainActivity.this)
-                        .setMessage(getString(R.string.about_description_main) + "\n\n" + getString(R.string.about_description_sleep_well))
-                        .setCancelable(true)
-                        .setPositiveButton(R.string.about_ok_button, null).show();
-                break;
             case R.id.menu_settings:
-                Intent aboutIntent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(aboutIntent);
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 break;
-        }
+            }
         return super.onOptionsItemSelected(item);
     }
 
