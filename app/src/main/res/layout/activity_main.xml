@@ -96,18 +96,17 @@
 
             <RadioButton
                 android:id="@+id/radioToday"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:checked="true"
                 android:text="@string/radio_today"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:paddingEnd="16dp" />
 
             <RadioButton
                 android:id="@+id/radioTomorrow"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/radio_tomorrow"
                 android:textSize="18sp" />
         </RadioGroup>
