@@ -22,11 +22,16 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-    - name: Accept Android SDK Licenses
-      run: yes | sdkmanager --licenses || true
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
+        env:
+          ANDROID_NDK_HOME: ""
 
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
@@ -38,21 +43,29 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
-          BUILD_TOOLS_VERSION: "34.0.0"
+          # Match this to your build.gradle version
+          BUILD_TOOLS_VERSION: "27.0.3"
 
-      - name: Rename and Strip Dots
+      - name: Rename for Release
         id: rename_apk
         run: |
-        
           raw_tag=${GITHUB_REF#refs/tags/}
-          clean_tag="${raw_tag//./}"
+          # If triggered via workflow_dispatch (no tag), use 'manual'
+          if [ "$raw_tag" = "workflow_dispatch" ] || [ "$raw_tag" = "master" ]; then
+            clean_tag="manual"
+          else
+            clean_tag="${raw_tag//./}"
+          fi
+          
           signed_file="${{ steps.sign_app.outputs.signedReleaseFile }}"
           new_name="auto-light-${clean_tag}.apk"
+          
           mv "$signed_file" "app/build/outputs/apk/release/$new_name"
           echo "new_path=app/build/outputs/apk/release/$new_name" >> $GITHUB_OUTPUT
 
-      - name: Upload Signed APK to GitHub Release
+      - name: Create GitHub Release and Upload
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ steps.rename_apk.outputs.new_path }}
           generate_release_notes: true
