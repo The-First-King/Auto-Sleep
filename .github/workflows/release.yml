@@ -21,15 +21,14 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
           cache: gradle
+          
+      - name: Install Android Build Tools 27.0.3
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;27.0.3"
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-27"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          log-accepted-android-sdk-licenses: false
-          build-tools: "27.0.3"
-
-      - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses || true
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
