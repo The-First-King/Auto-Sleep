@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package com.mine.autosleep;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
