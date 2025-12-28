@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package com.mine.autosleep;
 
 import java.io.BufferedReader;
 import java.io.File;
