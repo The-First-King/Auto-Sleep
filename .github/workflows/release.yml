@@ -68,7 +68,7 @@ jobs:
           fi
           
           signed_file="${{ steps.sign_app.outputs.signedReleaseFile }}"
-          new_name="auto-light-${clean_tag}.apk"
+          new_name="auto-sleep-${clean_tag}.apk"
           
           mv "$signed_file" "app/build/outputs/apk/release/$new_name"
           echo "new_path=app/build/outputs/apk/release/$new_name" >> $GITHUB_OUTPUT
