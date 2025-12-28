@@ -16,8 +16,8 @@ import java.io.IOException;
 public class AutoSleepModeService extends IntentService
 {
     private static final String TAG = "AutoSleepModeService";
-    private static final String COMMAND_FLIGHT_MODE_1 = "settings put global sleep_mode_on ";
-    private static final String COMMAND_FLIGHT_MODE_2 = "am broadcast -a android.intent.action.SLEEP_MODE --ez state ";
+    private static final String COMMAND_FLIGHT_MODE_1 = "settings put global airplane_mode_on ";
+    private static final String COMMAND_FLIGHT_MODE_2 = "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state ";
 
     public AutoSleepModeService() {
         super("SchedulingService");
