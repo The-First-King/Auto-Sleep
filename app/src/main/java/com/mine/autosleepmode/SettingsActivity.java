@@ -1,4 +1,4 @@
-package com.mine.autosleepmode;
+package com.mine.autosleep;
 
 import android.app.ActionBar;
 import android.app.Activity;
