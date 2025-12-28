@@ -9,8 +9,8 @@
         android:shortcutDisabledMessage="@string/shortcut_disabled">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.mine.autosleepmode"
-            android:targetClass="com.mine.autosleepmode.SettingsActivity" />
+            android:targetPackage="com.mine.autosleep"
+            android:targetClass="com.mine.autosleep.SettingsActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>
