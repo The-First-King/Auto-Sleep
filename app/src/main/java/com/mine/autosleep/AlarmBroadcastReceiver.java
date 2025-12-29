@@ -51,41 +51,33 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
         Calendar calendarStart = Calendar.getInstance();
         Calendar calendarEnd = Calendar.getInstance();
 
-        // Initialize Start Time
         calendarStart.set(Calendar.HOUR_OF_DAY, Integer.valueOf(enable[0]));
         calendarStart.set(Calendar.MINUTE, Integer.valueOf(enable[1]));
         calendarStart.set(Calendar.SECOND, 0);
         calendarStart.set(Calendar.MILLISECOND, 0);
 
-        // Initialize End Time
         calendarEnd.set(Calendar.HOUR_OF_DAY, Integer.valueOf(disable[0]));
         calendarEnd.set(Calendar.MINUTE, Integer.valueOf(disable[1]));
         calendarEnd.set(Calendar.SECOND, 0);
         calendarEnd.set(Calendar.MILLISECOND, 0);
 
-        // 1. Find the next valid START day based on "Trigger On" settings
         if (!findNextStartDay(context, now, calendarStart)) {
             return "No day was checked in Settings";
         }
 
-        // 2. Handle END Day based on Radio Buttons ("The next day" preference)
         boolean endOnNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
         
-        // Align End date with the calculated Start date first
         calendarEnd.set(Calendar.YEAR, calendarStart.get(Calendar.YEAR));
         calendarEnd.set(Calendar.DAY_OF_YEAR, calendarStart.get(Calendar.DAY_OF_YEAR));
 
         if (endOnNextDay) {
             calendarEnd.add(Calendar.DATE, 1);
         } else {
-            // If "Today" selected, but 08:00 is technically before 23:00, 
-            // we must add a day anyway to avoid a negative sleep duration
             if (calendarEnd.before(calendarStart)) {
                 calendarEnd.add(Calendar.DATE, 1);
             }
         }
 
-        // Set Alarms
         Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
         Intent intentDisable = new Intent(context, AlarmBroadcastReceiver.class);
@@ -100,7 +92,6 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
         
         setAlarmAfterReboot(context, true);
 
-        // Success Message
         if (now.get(Calendar.DAY_OF_YEAR) == calendarStart.get(Calendar.DAY_OF_YEAR)) {
             return context.getString(R.string.toast_next_sleep_today) + " " + SDF_2.format(calendarStart.getTime());
         } else {
@@ -111,17 +102,13 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
     private boolean findNextStartDay(Context context, Calendar now, Calendar start) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         
-        // Search through the next 7 days to find the first enabled day
         for (int i = 0; i < 7; i++) {
             Calendar checkCycle = (Calendar) start.clone();
             checkCycle.add(Calendar.DATE, i);
             
-            // If this is "Today" and 23:00 has already passed, skip to tomorrow
             if (i == 0 && now.after(start)) continue;
 
             int dayOfWeek = checkCycle.get(Calendar.DAY_OF_WEEK);
-            // Translate Calendar.DAY_OF_WEEK to your switch_X keys
-            // Note: Sunday=1, Monday=2 ... Saturday=7
             if (settings.getBoolean("switch_" + dayOfWeek, true)) {
                 start.add(Calendar.DATE, i);
                 return true;
