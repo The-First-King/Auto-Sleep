@@ -89,7 +89,6 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                // Removed 'nextDay' from this list to prevent crash
                 for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, radioGroupStartDay)) {
                     v.setEnabled(isChecked);
                 }
