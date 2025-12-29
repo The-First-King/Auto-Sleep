@@ -1,1 +1,1 @@
-
+Initial release of the Auto Airplane Mode application that is available in F-Droid archive repository, featuring a rebranded name and slightly update UI. The app automatically toggles Aeroplane mode on or off based on user's predefined schedule.
