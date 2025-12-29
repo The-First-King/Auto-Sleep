@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # CHANGE THESE
-app_package="com.mine.autosleepmode"
-dir_app_name="AutoSleepMode"
+app_package="com.mine.autosleep"
+dir_app_name="AutoSleep"
 MAIN_ACTIVITY="MainActivity"
 
 ADB_EXE=/c/ADB2/adb
