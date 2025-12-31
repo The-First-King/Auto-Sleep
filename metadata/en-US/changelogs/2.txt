@@ -7,10 +7,12 @@
 ### Changed
 
 - Sleep Mode is now a full “bundle” action, not only Airplane Mode:
-  - Airplane mode ON
-  - Wi‑Fi OFF
-  - Bluetooth OFF
-  - Force Doze/Idle mode on entry
+
+  - Airplane mode ON.
+  - Wi‑Fi OFF.
+  - Bluetooth OFF.
+  - Force Doze/Idle mode on entry.
+  
 - Sleep Mode exit now always:
-  - Unforces Doze/Idle
+  - Unforces Doze/Idle.
   - Restores the pre-sleep snapshot (Airplane/Wi‑Fi/Bluetooth) regardless of any manual changes during sleep.
