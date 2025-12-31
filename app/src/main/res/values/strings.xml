@@ -50,6 +50,6 @@
 
     <!-- Quick Settings tile + persistent notification action -->
     <string name="sleep_mode">Sleep mode</string>
-    <string name="exit_now">Exit now</string>
+    <string name="exit_now">Stop now</string>
 
 </resources>
