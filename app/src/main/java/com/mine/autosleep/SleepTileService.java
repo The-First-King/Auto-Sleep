@@ -22,7 +22,7 @@ public class SleepTileService extends TileService {
         work.putExtra(Constants.ID, active ? Constants.ID_DISABLE : Constants.ID_ENABLE);
         AutoSleepService.enqueue(this, work);
 
-        // Update immediately
+        // Update immediately (UI)
         updateTileState(!active);
     }
 
@@ -34,8 +34,7 @@ public class SleepTileService extends TileService {
         Tile t = getQsTile();
         if (t == null) return;
 
-        t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE
-		t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
-        t.updateTile();
+        t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
+               t.updateTile();
     }
 }
