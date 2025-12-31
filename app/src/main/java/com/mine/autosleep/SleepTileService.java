@@ -1,7 +1,6 @@
 package com.mine.autosleep;
 
 import android.content.Intent;
-import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
@@ -34,10 +33,9 @@ public class SleepTileService extends TileService {
     private void updateTileState(boolean active) {
         Tile t = getQsTile();
         if (t == null) return;
-        t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            t.setSubtitle(active ? "On" : "Off");
-        }
+
+        t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE
+		t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         t.updateTile();
     }
 }
