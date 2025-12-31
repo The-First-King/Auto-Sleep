@@ -1,86 +1,97 @@
 package com.mine.autosleep;
 
-import android.app.IntentService;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
+import android.support.v4.app.JobIntentService;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-public class AutoSleepService extends IntentService
-{
+public class AutoSleepService extends JobIntentService {
     private static final String TAG = "AutoSleepService";
-    private static final String COMMAND_FLIGHT_MODE_1 = "settings put global airplane_mode_on ";
-    private static final String COMMAND_FLIGHT_MODE_2 = "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state ";
 
-    public AutoSleepService() {
-        super("SchedulingService");
+    static void enqueue(Context context, Intent work) {
+        enqueueWork(context, AutoSleepService.class, Constants.JOB_ID, work);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "onHandleIntent");
+    protected void onHandleWork(Intent intent) {
+        if (intent == null) return;
 
         int id = intent.getIntExtra(Constants.ID, 0);
-        if (toggleSleep(id)) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            if (settings.getBoolean("notification_sleep_started", true)) {
-                sendNotificationWhenSleepIsEnabled(intent.getStringExtra(Constants.END));
+        Log.d(TAG, "onHandleWork id=" + id);
+
+        if (id == Constants.ID_ENABLE) {
+            SleepController.enterSleep(this);
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (sp.getBoolean("notification_sleep_started", true)) {
+                sendPersistentSleepNotification(sp.getString(Constants.DISABLE_SLEEP_TIME, "08:00"));
             }
-        } else {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.cancel(0);
-            Log.d(TAG, "sleep mode is going off -> scheduling new alarm!");
-            AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
-            r.setAlarms(getApplicationContext());
+
+        } else if (id == Constants.ID_DISABLE) {
+            SleepController.exitSleep(this);
+
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) nm.cancel(Constants.NOTIF_ID_SLEEP);
+
+            // Keep schedule enabled (Option A): reschedule next cycle if app is enabled [6](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml.java)
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (sp.getBoolean(Constants.APP_IS_ENABLED, false)) {
+                AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
+                r.setAlarms(getApplicationContext());
+            }
         }
-        AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendNotificationWhenSleepIsEnabled(String endOfSleep) {
-        Log.d(TAG, "sendNotificationWhenSleepIsEnabled");
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setContentTitle(getString(R.string.notification_title));
-        builder.setContentText(String.format(getString(R.string.notification_content),
-                endOfSleep));
-        builder.setSmallIcon(R.drawable.ic_moon);
-        builder.setContentIntent(contentIntent);
-        builder.setAutoCancel(true);
+    private void sendPersistentSleepNotification(String endOfSleep) {
+        createNotificationChannelIfNeeded(); // required on API 26+ when targeting 26+ [5](https://github.com/tlredz/Scripts)[6](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml.java)
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, builder.build());
+        Intent openIntent = new Intent(this, MainActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        Intent exitNow = new Intent(this, ExitNowReceiver.class);
+        exitNow.setAction(Constants.ACTION_EXIT_NOW);
+        PendingIntent exitNowPi = PendingIntent.getBroadcast(
+                this,
+                1,
+                exitNow,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this, Constants.NOTIF_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_moon)
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentText(String.format(getString(R.string.notification_content), endOfSleep))
+                .setContentIntent(contentIntent)
+                .setOngoing(true)
+                .addAction(0, getString(R.string.exit_now), exitNowPi);
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.notify(Constants.NOTIF_ID_SLEEP, b.build());
     }
 
-    private boolean toggleSleep(int id) {
-        Log.d(TAG, "toggleSleep");
-        boolean enable = id == Constants.ID_ENABLE;
-        String v = enable ? "1" : "0";
-        String command = COMMAND_FLIGHT_MODE_1 + v;
-        executeCommandWithoutWait(command);
-        String command2 = COMMAND_FLIGHT_MODE_2 + enable;
-        executeCommandWithoutWait(command2);
-        Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, enable ? 1 : 0);
-        return enable;
-    }
+    private void createNotificationChannelIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
 
-    private void executeCommandWithoutWait(String command) {
-        Log.d(TAG, "executeCommandWithoutWait");
-        try {
-            Process p = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            os.writeBytes(command + "\n");
-            os.writeBytes("exit\n");
-            os.flush();
-            Log.d(TAG, command);
-        } catch (IOException e) {
-            Log.e(TAG, "su command has failed due to: " + e.fillInStackTrace());
+            NotificationChannel ch = new NotificationChannel(
+                    Constants.NOTIF_CHANNEL_ID,
+                    getString(R.string.notification_title),
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            nm.createNotificationChannel(ch);
         }
     }
 }

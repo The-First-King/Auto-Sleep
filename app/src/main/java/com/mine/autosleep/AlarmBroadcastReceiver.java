@@ -8,16 +8,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.WakefulBroadcastReceiver;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
-    private static final String TAG = "AlarmBroadcastReceiver";
+public class AlarmBroadcastReceiver extends android.content.BroadcastReceiver {
 
     private AlarmManager alarmManager;
     private static final SimpleDateFormat SDF_1 = new SimpleDateFormat("dd/MM", Locale.getDefault());
@@ -27,16 +23,17 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent == null) return;
 
-        Intent service = new Intent(context, AutoSleepService.class);
         int id = intent.getIntExtra(Constants.ID, 0);
-        
+
+        Intent work = new Intent(context, AutoSleepService.class);
+        work.putExtra(Constants.ID, id);
+
         if (id == Constants.ID_ENABLE) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-            service.putExtra(Constants.END, settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00"));
+            work.putExtra(Constants.END, settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00"));
         }
-        
-        service.putExtra(Constants.ID, id);
-        startWakefulService(context, service);
+
+        AutoSleepService.enqueue(context, work);
     }
 
     public String setAlarms(Context context) {
@@ -66,30 +63,33 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
         }
 
         boolean endOnNextDay = settings.getBoolean(Constants.START_ON_NEXT_DAY, false);
-        
+
         calendarEnd.set(Calendar.YEAR, calendarStart.get(Calendar.YEAR));
         calendarEnd.set(Calendar.DAY_OF_YEAR, calendarStart.get(Calendar.DAY_OF_YEAR));
 
         if (endOnNextDay) {
             calendarEnd.add(Calendar.DATE, 1);
-        } else {
-            if (calendarEnd.before(calendarStart)) {
-                calendarEnd.add(Calendar.DATE, 1);
-            }
+        } else if (calendarEnd.before(calendarStart)) {
+            calendarEnd.add(Calendar.DATE, 1);
         }
 
         Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
         intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
+
         Intent intentDisable = new Intent(context, AlarmBroadcastReceiver.class);
         intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
 
-        PendingIntent piEnable = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        PendingIntent piDisable = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+
+        PendingIntent piEnable = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, flags);
+        PendingIntent piDisable = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, flags);
+
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        // Doze-friendly exact alarms (your original approach) [6](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml.java)
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarStart.getTimeInMillis(), piEnable);
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarEnd.getTimeInMillis(), piDisable);
-        
+
         setAlarmAfterReboot(context, true);
 
         if (now.get(Calendar.DAY_OF_YEAR) == calendarStart.get(Calendar.DAY_OF_YEAR)) {
@@ -101,11 +101,9 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     private boolean findNextStartDay(Context context, Calendar now, Calendar start) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        
         for (int i = 0; i < 7; i++) {
             Calendar checkCycle = (Calendar) start.clone();
             checkCycle.add(Calendar.DATE, i);
-            
             if (i == 0 && now.after(start)) continue;
 
             int dayOfWeek = checkCycle.get(Calendar.DAY_OF_WEEK);
@@ -119,24 +117,29 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     public void cancelAlarms(Context context) {
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
         Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
         Intent intentDisable = new Intent(context, AlarmBroadcastReceiver.class);
-        
+
         PendingIntent piEnable = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, PendingIntent.FLAG_IMMUTABLE);
         PendingIntent piDisable = PendingIntent.getBroadcast(context, Constants.ID_DISABLE, intentDisable, PendingIntent.FLAG_IMMUTABLE);
-        
+
         if (alarmManager != null) {
             alarmManager.cancel(piEnable);
             alarmManager.cancel(piDisable);
         }
+
         setAlarmAfterReboot(context, false);
     }
 
     private void setAlarmAfterReboot(Context context, boolean keep) {
         ComponentName receiver = new ComponentName(context, BootReceiver.class);
         PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(receiver, 
-            keep ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 
-            PackageManager.DONT_KILL_APP);
-    }
+
+        pm.setComponentEnabledSetting(
+                receiver,
+                keep ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+        );
+       }
 }
