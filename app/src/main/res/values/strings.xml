@@ -44,7 +44,12 @@
     <string name="settings_notification_switch">Display when entering sleep mode</string>
 
     <!-- Notification -->
-    <string name="notification_title">Sleep mode enabled automatically</string>
+    <string name="notification_title">Sleep mode enabled</string>
     <string name="notification_content">Will be disabled at %s</string>
     <string name="title_activity_settings">Settings</string>
+
+    <!-- Quick Settings tile + persistent notification action -->
+    <string name="sleep_mode">Sleep Mode</string>
+    <string name="exit_now">Exit now</string>
+
 </resources>
