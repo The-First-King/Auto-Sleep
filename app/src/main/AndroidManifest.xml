@@ -65,7 +65,7 @@
         <service
             android:name=".SleepTileService"
             android:label="@string/sleep_mode"
-            android:icon="@drawable/ic_moon"
+            android:icon="@drawable/ic_qs_sleep"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>
