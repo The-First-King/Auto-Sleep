@@ -1,1 +1,16 @@
-123
+### Added
+
+- Quick Settings tile (Android 7+) for instant Sleep Mode ON/OFF (hard manual override).
+- Persistent notification while Sleep Mode is active, including an “Stop now” action.
+- Notification channel support (Android 8+) to ensure notifications display reliably.
+
+### Changed
+
+- Sleep Mode is now a full “bundle” action, not only Airplane Mode:
+  - Airplane mode ON
+  - Wi‑Fi OFF
+  - Bluetooth OFF
+  - Force Doze/Idle mode on entry
+- Sleep Mode exit now always:
+  - Unforces Doze/Idle
+  - Restores the pre-sleep snapshot (Airplane/Wi‑Fi/Bluetooth) regardless of any manual changes during sleep.
