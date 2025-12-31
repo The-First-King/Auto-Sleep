@@ -8,7 +8,7 @@
 
     <!-- Main Page UI -->
     <string name="app_name">Auto Sleep</string>
-    <string name="toggle_app">Toggle App</string>
+    <string name="toggle_app">Service status</string>
     <string name="sleep_starts">Sleep mode starts at</string>
     <string name="sleep_ends">Sleep mode ends at</string>
     <string name="monday">Monday</string>
@@ -49,7 +49,7 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Quick Settings tile + persistent notification action -->
-    <string name="sleep_mode">Sleep Mode</string>
+    <string name="sleep_mode">Sleep mode</string>
     <string name="exit_now">Exit now</string>
 
 </resources>
