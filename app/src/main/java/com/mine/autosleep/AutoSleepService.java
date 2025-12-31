@@ -40,7 +40,6 @@ public class AutoSleepService extends JobIntentService {
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null) nm.cancel(Constants.NOTIF_ID_SLEEP);
 
-            // Keep schedule enabled (Option A): reschedule next cycle if app is enabled [6](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml.java)
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             if (sp.getBoolean(Constants.APP_IS_ENABLED, false)) {
                 AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
@@ -50,7 +49,7 @@ public class AutoSleepService extends JobIntentService {
     }
 
     private void sendPersistentSleepNotification(String endOfSleep) {
-        createNotificationChannelIfNeeded(); // required on API 26+ when targeting 26+ [5](https://github.com/tlredz/Scripts)[6](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml.java)
+        createNotificationChannelIfNeeded();
 
         Intent openIntent = new Intent(this, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(
@@ -70,7 +69,7 @@ public class AutoSleepService extends JobIntentService {
         );
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, Constants.NOTIF_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_moon)
+                .setSmallIcon(R.drawable.ic_stat_autosleep)
                 .setContentTitle(getString(R.string.notification_title))
                 .setContentText(String.format(getString(R.string.notification_content), endOfSleep))
                 .setContentIntent(contentIntent)
