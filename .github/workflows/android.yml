@@ -63,4 +63,3 @@ jobs:
       with:
         name: app-debug-apk-from-cloud 
         path: app/build/outputs/apk/debug/*.apk
-		
