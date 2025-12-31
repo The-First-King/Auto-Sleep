@@ -12,17 +12,17 @@ import java.io.InputStreamReader;
 final class SleepController {
     private static final String TAG = "SleepController";
 
-    // Wi-Fi / Bluetooth via svc (compat-friendly) [1](https://developer.android.com/develop/ui/views/notifications/channels)
+    // Wi-Fi / Bluetooth via svc (https://developer.android.com/develop/ui/views/notifications/channels)
     private static final String CMD_WIFI_OFF = "svc wifi disable";
     private static final String CMD_WIFI_ON  = "svc wifi enable";
     private static final String CMD_BT_OFF   = "svc bluetooth disable";
     private static final String CMD_BT_ON    = "svc bluetooth enable";
 
-    // Doze force/unforce (mandatory force; always unforce on exit) [2](https://iut-fbleau.fr/docs/android/reference/android/service/quicksettings/TileService.html)[3](https://www.geeksforgeeks.org/android/quick-settings-tile-api-in-android-13/)
+    // Doze force/unforce (mandatory force; always unforce on exit)
     private static final String CMD_FORCE_IDLE = "dumpsys deviceidle force-idle";
     private static final String CMD_UNFORCE_IDLE = "dumpsys deviceidle unforce";
 
-    // Airplane mode commands (your existing approach) [7](https://extremenetworks2com-my.sharepoint.com/personal/akoryakin_extremenetworks_com/Documents/Microsoft%20Copilot%20Chat%20Files/AndroidManifest.xml)
+    // Airplane mode commands
     private static final String CMD_AP_ON_1  = "settings put global airplane_mode_on 1";
     private static final String CMD_AP_ON_2  = "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true";
     private static final String CMD_AP_OFF_1 = "settings put global airplane_mode_on 0";
@@ -53,7 +53,7 @@ final class SleepController {
                 .apply();
 
         // Apply sleep bundle:
-        // airplane ON, wifi OFF, bt OFF, force idle (mandatory) [2](https://iut-fbleau.fr/docs/android/reference/android/service/quicksettings/TileService.html)[1](https://developer.android.com/develop/ui/views/notifications/channels)
+        // airplane ON, wifi OFF, bt OFF, force idle
         runSu(
                 CMD_AP_ON_1,
                 CMD_AP_ON_2,
@@ -100,8 +100,6 @@ final class SleepController {
         Log.d(TAG, "exitSleep: restored snapshot and cleared state");
     }
 
-    // ---- Helpers ----
-
     private static void runSu(String... commands) {
         Process p = null;
         try {
@@ -131,7 +129,6 @@ final class SleepController {
             p = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
 
-            // Tagged output makes parsing robust
             os.writeBytes("echo AP=$(settings get global airplane_mode_on)\n");
             os.writeBytes("echo WIFI=$(settings get global wifi_on)\n");
             os.writeBytes("echo BT=$(settings get global bluetooth_on)\n");
@@ -169,4 +166,5 @@ final class SleepController {
         int wifi;
         int bt;
     }
+
 }
