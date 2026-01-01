@@ -61,7 +61,7 @@ Auto Sleep is designed to do one job (enter/exit Sleep mode) and not collect any
 - **No personal data access**: it does not read contacts, location, messages, or files.
 - **Open source**: you can review exactly what it does.
 
-## Installation & license
+## Installation & License
 
 <a href="https://github.com/The-First-King/Auto-Sleep/releases"><img src="images/GitHub.png" alt="Get it on GitHub" height="60"></a>
 <a href="https://apt.izzysoft.de/packages/com.mine.autosleep"><img src="images/IzzyOnDroid.png" alt="Get it at IzzyOnDroid" height="60"></a>
