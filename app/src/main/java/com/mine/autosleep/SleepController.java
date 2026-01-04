@@ -213,31 +213,16 @@ final class SleepController {
             os.writeBytes("echo WAKEUP=$(" + CMD_GET_WAKEUP_ENABLED + ")\n");
 
             // Build CSV of STA interfaces that are UP
-            // 1) iw dev -> interfaces with "type managed" (STA/client)
-            // 2) fallback getprop wifi.interface
-            // 3) fallback heuristic list
-            os.writeBytes(
-                    "STA_LIST=$(iw dev 2>/dev/null | " +
-                            "awk '$1==\"Interface\"{i=$2} $1==\"type\" && $2==\"managed\"{print i}');\n" +
-                    "if [ -z \"$STA_LIST\" ]; then " +
-                            "IF=$(getprop wifi.interface 2>/dev/null); " +
-                            "[ -n \"$IF\" ] && STA                            "[ -n \"$IF\" ] && STA_LIST=\"$IF\"; " +
-                    "fi;\n" +
-                    "if [ -z \"$STA_LIST\" ]; then " +
-                            "STA_LIST=$(for IF in /sys/class/net/*; do " +
-                                "I=$(basename $IF); " +
-                                "case \"$I\" in *p2p*|*ap*|swlan*|nan* ) continue;; esac; " +
-                                "[ -d /sys/class/net/$I/wireless ] || continue; " +
-                                "echo $I; " +
-                            "done); " +
-                    "fi;\n" +
-                    "CSV=\"\";\n" +
-                    "for I in $STA_LIST; do " +
-                        "S=$(cat /sys/class/net/$I/operstate 2>/dev/null); " +
-                        "[ \"$S\" = \"up\" ] && CSV=\"$CSV$I,\"; " +
-                    "done;\n" +
-                    "echo IFACES=$CSV\n"
-            );
+			os.writeBytes(
+					"STA_LIST=$(iw dev 2>/dev/null | " +
+							"awk '$1==\"Interface\"{i=$2} $1==\"type\" && $2==\"managed\"{print i}');\n" +
+					"CSV=\"\";\n" +
+					"for I in $STA_LIST; do " +
+					"  S=$(cat /sys/class/net/$I/operstate 2>/dev/null); " +
+					"  [ \"$S\" = \"up\" ] && CSV=\"$CSV$I,\"; " +
+					"done;\n" +
+					"echo IFACES=$CSV\n"
+			);
 
             os.writeBytes("exit\n");
             os.flush();
