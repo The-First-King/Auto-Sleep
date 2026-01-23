@@ -20,6 +20,8 @@ public class SleepTileService extends TileService {
 
         Intent work = new Intent(this, AutoSleepService.class);
         work.putExtra(Constants.ID, active ? Constants.ID_DISABLE : Constants.ID_ENABLE);
+        work.putExtra(Constants.ORIGIN, Constants.ORIGIN_MANUAL);
+
         AutoSleepService.enqueue(this, work);
 
         // Update immediately (UI)
@@ -35,6 +37,6 @@ public class SleepTileService extends TileService {
         if (t == null) return;
 
         t.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
-               t.updateTile();
+        t.updateTile();
     }
 }
