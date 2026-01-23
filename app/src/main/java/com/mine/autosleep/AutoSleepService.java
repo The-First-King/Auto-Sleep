@@ -31,14 +31,25 @@ public class AutoSleepService extends JobIntentService {
         if (id == Constants.ID_ENABLE) {
             SleepController.enterSleep(this);
 
-            long exitAt = computeNextEndEpoch(this);
-            ensureExitAlarm(this, exitAt);
-
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            sp.edit().putLong(Constants.PREF_SCHEDULED_EXIT_AT, exitAt).apply();
+            boolean serviceEnabled = sp.getBoolean(Constants.APP_IS_ENABLED, false);
 
-            if (sp.getBoolean("notification_sleep_started", true)) {
-                sendPersistentSleepNotification(exitAt);
+            if (serviceEnabled) {
+                long exitAt = computeNextEndEpoch(this);
+                ensureExitAlarm(this, exitAt);
+                sp.edit().putLong(Constants.PREF_SCHEDULED_EXIT_AT, exitAt).apply();
+
+                if (sp.getBoolean("notification_sleep_started", true)) {
+                    sendPersistentSleepNotification(exitAt);
+                }
+            } else {
+                // Service status OFF → manual/indefinite sleep
+                cancelExitAlarm(this);
+                sp.edit().remove(Constants.PREF_SCHEDULED_EXIT_AT).apply();
+
+                if (sp.getBoolean("notification_sleep_started", true)) {
+                    sendPersistentSleepNotificationIndefinite();
+                }
             }
 
         } else if (id == Constants.ID_DISABLE) {
@@ -53,6 +64,7 @@ public class AutoSleepService extends JobIntentService {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             sp.edit().remove(Constants.PREF_SCHEDULED_EXIT_AT).apply();
 
+            // Only reschedule the next cycle when this disable came from the alarm
             if (Constants.ORIGIN_ALARM.equals(origin) && sp.getBoolean(Constants.APP_IS_ENABLED, false)) {
                 AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
                 r.setAlarms(getApplicationContext());
@@ -98,11 +110,20 @@ public class AutoSleepService extends JobIntentService {
         }
     }
 
+    private void cancelExitAlarm(Context ctx) {
+        AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+
+        Intent intentDisable = new Intent(ctx, AlarmBroadcastReceiver.class);
+        intentDisable.putExtra(Constants.ID, Constants.ID_DISABLE);
+        PendingIntent piDisable = PendingIntent.getBroadcast(ctx, Constants.ID_DISABLE, intentDisable, PendingIntent.FLAG_IMMUTABLE);
+        am.cancel(piDisable);
+    }
+
     private void sendPersistentSleepNotification(long exitEpoch) {
         createNotificationChannelIfNeeded();
 
-        java.text.SimpleDateFormat sdf =
-                new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
         String endOfSleep = sdf.format(new java.util.Date(exitEpoch));
 
         Intent openIntent = new Intent(this, MainActivity.class);
@@ -126,6 +147,40 @@ public class AutoSleepService extends JobIntentService {
                 .setSmallIcon(R.drawable.ic_stat_autosleep)
                 .setContentTitle(getString(R.string.notification_title))
                 .setContentText(String.format(getString(R.string.notification_content), endOfSleep))
+                .setContentIntent(contentIntent)
+                .setOngoing(true)
+                .addAction(0, getString(R.string.exit_now), exitNowPi);
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.notify(Constants.NOTIF_ID_SLEEP, b.build());
+    }
+
+    private void sendPersistentSleepNotificationIndefinite() {
+        createNotificationChannelIfNeeded();
+
+        Intent openIntent = new Intent(this, MainActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        Intent exitNow = new Intent(this, ExitNowReceiver.class);
+        exitNow.setAction(Constants.ACTION_EXIT_NOW);
+        PendingIntent exitNowPi = PendingIntent.getBroadcast(
+                this,
+                1,
+                exitNow,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        String content = "Sleep mode enabled • Until you turn it off";
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this, Constants.NOTIF_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_autosleep)
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentText(content)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .addAction(0, getString(R.string.exit_now), exitNowPi);
