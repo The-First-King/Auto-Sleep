@@ -27,6 +27,7 @@ public class AlarmBroadcastReceiver extends android.content.BroadcastReceiver {
 
         Intent work = new Intent(context, AutoSleepService.class);
         work.putExtra(Constants.ID, id);
+        work.putExtra(Constants.ORIGIN, Constants.ORIGIN_ALARM);
 
         if (id == Constants.ID_ENABLE) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -140,5 +141,5 @@ public class AlarmBroadcastReceiver extends android.content.BroadcastReceiver {
                 keep ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
         );
-       }
+    }
 }
