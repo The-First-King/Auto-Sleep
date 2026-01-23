@@ -175,7 +175,7 @@ public class AutoSleepService extends JobIntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        String content = "Sleep mode enabled • Until you turn it off";
+        String content = "Until you turn it off";
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, Constants.NOTIF_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_autosleep)
