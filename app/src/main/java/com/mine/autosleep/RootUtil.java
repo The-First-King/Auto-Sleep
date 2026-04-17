@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
-final class RootUtil
-{
+final class RootUtil {
+    
     static boolean isDeviceRooted() {
-        return checkRootMethod1() || checkRootMethod2() || checkRootMethod3();
+        return checkRootMethod3() || checkRootMethod1() || checkRootMethod2();
     }
 
     private static boolean checkRootMethod1() {
@@ -19,7 +19,10 @@ final class RootUtil
         String[] paths = { "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su",
                 "/system/bin/failsafe/su", "/data/local/su", "/su/bin/su"};
         for (String path : paths) {
-            if (new File(path).exists()) return true;
+            try {
+                if (new File(path).exists()) return true;
+            } catch (Exception e) {
+            }
         }
         return false;
     }
@@ -27,9 +30,14 @@ final class RootUtil
     private static boolean checkRootMethod3() {
         Process process = null;
         try {
-            process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+            process = Runtime.getRuntime().exec(new String[]{"su", "-c", "id"});
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            return in.readLine() != null;
+            String output = in.readLine();
+            
+            if (output != null && output.toLowerCase().contains("uid=0")) {
+                return true;
+            }
+            return false;
         } catch (Throwable t) {
             return false;
         } finally {
