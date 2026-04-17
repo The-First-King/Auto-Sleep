@@ -1,8 +1,7 @@
 Changes in Release 2.2:
 
- - Fixing the Quick Settings tile show a right‑side arrow (chevron).
- - Resolved an issue with enabling/disabling Auto Sleep mode manually when using the Quick Settings tile in different conditions.
+- Fixed the Quick Settings tile chevron display and resolved issues when manually enabling or disabling Auto Sleep via Quick Settings under certain conditions.
 
 Changes in Release 2.1:
 
-The "Turn on Wi-Fi Automatically" feature was officially introduced in Android 9 (Pie). It added the "wifi_wakeup_enabled" setting, which allows Wi-Fi chips to wake up and generate device wake interrupts even when Wi-Fi is turned off. This app release includes enhancements that ensure the Wi-Fi chip remains completely dormant, which helped reduce battery drain on the tested device by a factor of six (from 12% per 9 night hours to 2%).
+- Enhanced Wi‑Fi sleep behavior introduced in Android 9 by keeping the Wi‑Fi chip fully dormant when off, reducing battery drain by up to 6× on tested devices.
