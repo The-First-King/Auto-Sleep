@@ -6,7 +6,7 @@ public class Constants {
     static final String ENABLE_SLEEP_TIME = "enableSleepTime";
     static final String DISABLE_SLEEP_TIME = "disableSleepTime";
     static final String START_ON_NEXT_DAY = "startOnNextDay";
-	static final String PREF_SCHEDULED_EXIT_AT = "scheduled_exit_at_epoch";
+    static final String PREF_SCHEDULED_EXIT_AT = "scheduled_exit_at_epoch";
     public static final String ID = "id";
     public static final int ID_ENABLE = 1;
     public static final int ID_DISABLE = 2;
@@ -24,7 +24,7 @@ public class Constants {
     // Wi‑Fi hardening snapshot
     static final String SNAP_WIFI_SCAN_ALWAYS = "snap_wifi_scan_always";
     static final String SNAP_WIFI_WAKEUP_ENABLED = "snap_wifi_wakeup_enabled";
-    static final String SNAP_WIFI_UP_IFACES = "snap_wifi_up_ifaces"; // comma-separated list
+    static final String SNAP_WIFI_UP_IFACES = "snap_wifi_up_ifaces";
     static final String SNAP_VALID = "snap_valid";
 
     // Notification + actions
@@ -34,4 +34,12 @@ public class Constants {
 
     // JobIntentService job id (unique within app)
     static final int JOB_ID = 1001;
+
+    // Actions & Notifications
+    static final String PREF_POPUP_COUNTDOWN = "popup_countdown";
+    static final String PREF_DELAY_TIMER = "delay_timer";
+    static final String PREF_CANCEL_COUNTDOWN = "cancel_countdown";
+    static final String ACTION_DELAY_SLEEP = "com.mine.autosleep.action.DELAY_SLEEP";
+    static final int NOTIF_ID_COUNTDOWN = 2;
+    static final String NOTIF_CHANNEL_ID_URGENT = "sleep_mode_urgent";
 }
