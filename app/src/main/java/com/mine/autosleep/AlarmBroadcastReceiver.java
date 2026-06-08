@@ -23,6 +23,33 @@ public class AlarmBroadcastReceiver extends android.content.BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent == null) return;
 
+        // Catch the Delay action from the notification
+        if (Constants.ACTION_DELAY_SLEEP.equals(intent.getAction())) {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+            // Flag to break the countdown loop in AutoSleepService
+            settings.edit().putBoolean(Constants.PREF_CANCEL_COUNTDOWN, true).apply();
+
+            int delayMins = 0;
+            try {
+                delayMins = Integer.parseInt(settings.getString(Constants.PREF_DELAY_TIMER, "0"));
+            } catch (Exception ignored) {}
+
+            if (delayMins > 0) {
+                // Schedule the new Enable alarm for [delayMins] in the future
+                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                Intent intentEnable = new Intent(context, AlarmBroadcastReceiver.class);
+                intentEnable.putExtra(Constants.ID, Constants.ID_ENABLE);
+                PendingIntent piEnable = PendingIntent.getBroadcast(context, Constants.ID_ENABLE, intentEnable, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (delayMins * 60 * 1000L), piEnable);
+
+                // Dismiss the countdown notification
+                android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm != null) nm.cancel(Constants.NOTIF_ID_COUNTDOWN);
+            }
+            return;
+        }
+
         int id = intent.getIntExtra(Constants.ID, 0);
 
         Intent work = new Intent(context, AutoSleepService.class);
