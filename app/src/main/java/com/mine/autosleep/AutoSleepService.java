@@ -29,9 +29,51 @@ public class AutoSleepService extends JobIntentService {
         Log.d(TAG, "onHandleWork id=" + id + " origin=" + origin);
 
         if (id == Constants.ID_ENABLE) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            boolean showNotif = sp.getBoolean("notification_sleep_started", true);
+
+            // Check if device is in use (Screen ON or in an active phone call)
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+            boolean isScreenOn = pm != null && pm.isInteractive();
+            
+            // Using AudioManager bypasses the need for READ_PHONE_STATE permissions
+            android.media.AudioManager am = (android.media.AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            boolean isInCall = am != null && (am.getMode() == android.media.AudioManager.MODE_IN_CALL || am.getMode() == android.media.AudioManager.MODE_IN_COMMUNICATION);
+            
+            boolean inUse = isScreenOn || isInCall;
+
+            if (inUse && showNotif) {
+                int countdownSecs = 60;
+                try { countdownSecs = Integer.parseInt(sp.getString(Constants.PREF_POPUP_COUNTDOWN, "60")); } catch (Exception ignored){}
+                countdownSecs = Math.min(countdownSecs, 300);
+
+                int delayMins = 0;
+                try { delayMins = Integer.parseInt(sp.getString(Constants.PREF_DELAY_TIMER, "0")); } catch (Exception ignored){}
+                delayMins = Math.min(delayMins, 30);
+
+                // Reset the cancel flag
+                sp.edit().putBoolean(Constants.PREF_CANCEL_COUNTDOWN, false).apply();
+                boolean playedSound = false;
+
+                for (int i = countdownSecs; i > 0; i--) {
+                    // Check if user pressed "Delay"
+                    if (sp.getBoolean(Constants.PREF_CANCEL_COUNTDOWN, false)) {
+                        return; // Exit completely. The BroadcastReceiver already scheduled the next alarm.
+                    }
+                    
+                    showCountdownNotification(i, delayMins, isInCall, !playedSound);
+                    playedSound = true;
+                    
+                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                }
+                
+                // Countdown finished without interruption. Clear notification and proceed to sleep.
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm != null) nm.cancel(Constants.NOTIF_ID_COUNTDOWN);
+            }
+
             SleepController.enterSleep(this);
 
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             boolean serviceEnabled = sp.getBoolean(Constants.APP_IS_ENABLED, false);
 
             if (serviceEnabled) {
@@ -69,6 +111,79 @@ public class AutoSleepService extends JobIntentService {
                 AlarmBroadcastReceiver r = new AlarmBroadcastReceiver();
                 r.setAlarms(getApplicationContext());
             }
+        }
+    }
+
+    private void showCountdownNotification(int secondsLeft, int delayMins, boolean isInCall, boolean playSound) {
+        createUrgentNotificationChannelIfNeeded();
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this, Constants.NOTIF_CHANNEL_ID_URGENT)
+                .setSmallIcon(R.drawable.ic_stat_autosleep)
+                .setContentTitle("Sleep Mode Imminent")
+                .setContentText("Auto Sleep will trigger in " + secondsLeft + " seconds.")
+                .setOngoing(true)
+                .setOnlyAlertOnce(true) // Ensures it doesn't vibrate/ding on every second tick
+                .setPriority(NotificationCompat.PRIORITY_HIGH); // Required for Heads-Up popup
+
+        // Only add the Delay button if the timer is greater than 0
+        if (delayMins > 0) {
+            Intent delayIntent = new Intent(this, AlarmBroadcastReceiver.class);
+            delayIntent.setAction(Constants.ACTION_DELAY_SLEEP);
+            PendingIntent delayPi = PendingIntent.getBroadcast(
+                    this,
+                    2,
+                    delayIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+            b.addAction(0, "Delay (" + delayMins + "m)", delayPi);
+        }
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.notify(Constants.NOTIF_ID_COUNTDOWN, b.build());
+
+        // Handle Audio Routing for Active Calls
+        if (playSound && isInCall) {
+            playInEarSound();
+        }
+    }
+
+    private void playInEarSound() {
+        try {
+            android.net.Uri uri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION);
+            android.media.MediaPlayer mp = new android.media.MediaPlayer();
+            mp.setDataSource(this, uri);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mp.setAudioAttributes(new android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build());
+            } else {
+                mp.setAudioStreamType(android.media.AudioManager.STREAM_VOICE_CALL);
+            }
+            mp.setOnCompletionListener(new android.media.MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(android.media.MediaPlayer mediaPlayer) {
+                    mediaPlayer.release();
+                }
+            });
+            mp.prepare();
+            mp.start();
+        } catch (Exception e) {
+            Log.e(TAG, "Error playing in-ear sound", e);
+        }
+    }
+
+    private void createUrgentNotificationChannelIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            // Using IMPORTANCE_HIGH to guarantee the tooltip drops down over the screen
+            NotificationChannel ch = new NotificationChannel(
+                    Constants.NOTIF_CHANNEL_ID_URGENT,
+                    "Sleep Mode Warnings",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            nm.createNotificationChannel(ch);
         }
     }
 
