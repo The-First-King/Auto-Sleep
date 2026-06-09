@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
@@ -43,31 +44,41 @@ public class SettingsActivity extends Activity
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
 
-            // Validate Popup Countdown (1 to 300)
+            // Validate Popup Countdown (1 to 300 seconds)
             EditTextPreference popupPref = (EditTextPreference) findPreference(Constants.PREF_POPUP_COUNTDOWN);
             if (popupPref != null) {
-                popupPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                    try {
-                        int val = Integer.parseInt(newValue.toString());
-                        if (val >= 1 && val <= 300) return true;
-                    } catch (NumberFormatException ignored) {}
-                    
-                    Toast.makeText(getActivity(), "Please enter a value between 1 and 300 seconds", Toast.LENGTH_SHORT).show();
-                    return false;
+                popupPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        try {
+                            int val = Integer.parseInt(newValue.toString());
+                            if (val >= 1 && val <= 300) {
+                                return true;
+                            }
+                        } catch (NumberFormatException ignored) {}
+                        
+                        Toast.makeText(getActivity(), "Please enter a value between 1 and 300 seconds", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                 });
             }
 
-            // Validate Delay Timer (0 to 30)
+            // Validate Delay Timer (0 to 30 minutes)
             EditTextPreference delayPref = (EditTextPreference) findPreference(Constants.PREF_DELAY_TIMER);
             if (delayPref != null) {
-                delayPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                    try {
-                        int val = Integer.parseInt(newValue.toString());
-                        if (val >= 0 && val <= 30) return true;
-                    } catch (NumberFormatException ignored) {}
-                    
-                    Toast.makeText(getActivity(), "Please enter a value between 0 and 30 minutes", Toast.LENGTH_SHORT).show();
-                    return false;
+                delayPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        try {
+                            int val = Integer.parseInt(newValue.toString());
+                            if (val >= 0 && val <= 30) {
+                                return true;
+                            }
+                        } catch (NumberFormatException ignored) {}
+                        
+                        Toast.makeText(getActivity(), "Please enter a value between 0 and 30 minutes", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                 });
             }
         }
