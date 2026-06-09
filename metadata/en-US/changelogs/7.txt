@@ -1,7 +1,5 @@
-Introducing new smart sleep delays improvements in this version:
+Introducing new smart sleep delays enhancements in this version.
 
 * Added smart sleep interruption: the app now detects active screen usage and ongoing phone/VoIP calls at the scheduled sleep time.
-
 * Countdown notification: users can now see a countdown timer (default 60s) before sleep mode is triggered.
-
 * Configurable delay: added a "Delay" action to the notification, with adjustable snooze times (up to 30 minutes) available in the settings.
