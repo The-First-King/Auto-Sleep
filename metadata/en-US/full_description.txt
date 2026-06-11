@@ -1,16 +1,16 @@
-Auto Sleep
+<b>Auto Sleep</b>
 
 Auto Sleep is a specialized utility designed for users who prefer to rest without interruptions from their devices, whether at night or during the day for those working shift duties.
 
 Initially designed for Android 6.0 Marshmallow, the app is built to remain compatible with most recent Android versions.
 
-How It Works
+<b>How It Works</b>
 
 The app automatically toggles Airplane Mode on or off based on your predefined schedule.
 
-Note: Root access is required for this app to function properly.
+<b>Note:</b> Root access is required for this app to function properly.
 
-Permissions & Privacy
+<b>Permissions & Privacy</b>
 
 To provide reliable system automation without compromising privacy, Auto Sleep uses:
 
