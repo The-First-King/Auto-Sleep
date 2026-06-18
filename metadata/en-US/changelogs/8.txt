@@ -1,0 +1,1 @@
+- Added Quick Settings tile override. Manually triggering sleep mode now bypasses the countdown notification and delay prompt.
