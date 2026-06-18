@@ -39,11 +39,13 @@ public class AutoSleepService extends JobIntentService {
             // Using AudioManager bypasses the need for READ_PHONE_STATE permissions
             android.media.AudioManager am = (android.media.AudioManager) getSystemService(Context.AUDIO_SERVICE);
             boolean isInCall = am != null && (am.getMode() == android.media.AudioManager.MODE_IN_CALL || am.getMode() == android.media.AudioManager.MODE_IN_COMMUNICATION);
-            
+			
             boolean inUse = isScreenOn || isInCall;
-
-            if (inUse && showNotif) {
+            boolean isManualTrigger = Constants.ORIGIN_MANUAL.equals(origin);
+			
+            if (inUse && showNotif && !isManualTrigger) {
                 int countdownSecs = 60;
+
                 try { countdownSecs = Integer.parseInt(sp.getString(Constants.PREF_POPUP_COUNTDOWN, "60")); } catch (Exception ignored){}
                 countdownSecs = Math.min(countdownSecs, 300);
 
