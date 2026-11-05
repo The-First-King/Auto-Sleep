@@ -3,11 +3,15 @@ package com.mine.autosleep;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +32,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private final AlarmBroadcastReceiver sleepBroadcastReceiver = new AlarmBroadcastReceiver();
+    private boolean batteryRequestShown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +97,7 @@ public class MainActivity extends Activity {
                 for (View v : Arrays.asList(disableSleepText, editDisableSleep, enableSleepText, editEnableSleep, radioGroupStartDay)) {
                     v.setEnabled(isChecked);
                 }
-                
+
                 radioToday.setEnabled(isChecked);
                 radioTomorrow.setEnabled(isChecked);
 
@@ -157,6 +162,37 @@ public class MainActivity extends Activity {
         editDisableSleep.setText(settings.getString(Constants.DISABLE_SLEEP_TIME, "08:00"));
 
         switchApp.setChecked(settings.getBoolean(Constants.APP_IS_ENABLED, false));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!batteryRequestShown) {
+            batteryRequestShown = true;
+            ensureBatteryExemption();
+        }
+    }
+
+    // Ask the system to exempt Auto Sleep from battery optimization (Unrestricted).
+    private void ensureBatteryExemption() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (powerManager == null || powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Battery optimization request failed, opening settings instead", e);
+            try {
+                startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+            } catch (Exception ignored) {
+                // Battery optimization settings are unavailable on this device.
+            }
+        }
     }
 
     private void displayToast(String message) {
