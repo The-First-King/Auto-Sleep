@@ -54,7 +54,7 @@ Auto Sleep is designed to do one job (enter/exit Sleep mode) and not collect any
   Ensures your schedule can be restored after reboot.
 - **Notifications**  
   Used for the persistent “Sleep mode active” notification and the “Stop now” action.
-- **Ignore Battery Optimizations** 
+- **Ignore Battery Optimizations**  
   On first launch, the app asks to set it to "Unrestricted" so the background service keeps running while the device is idle.
 
 ### Privacy
