@@ -1,0 +1,2 @@
+- The app icon and its display on the Android launcher have been improved.
+- Adding an option to ignore battery optimizations. Previously, it was necessary to do this manually. Now, on first launch, the app asks to set it to "Unrestricted" so the background service keeps running while the device is idle.
